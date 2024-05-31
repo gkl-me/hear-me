@@ -1,0 +1,92 @@
+<%- include('adminNav') %>
+
+<div class="container mb-5">
+    <div class="search-container d-flex justify-content-between">
+        <div class="d-flex justify-content-between align-items-center gap-2">
+            <h2><%= title %></h2>
+            <form action="/admin/collection" method="get" class="form  d-flex gap-1">
+                <input type="text" name="search" placeholder="search" class="form-input form-control">
+                <input type="submit" class="btn submit-btn" value="Search">
+            </form>
+        </div>
+        <button type="button" class="btn submit-btn" data-bs-toggle="modal" data-bs-target="#addCollection">+ Add Collection</button>
+    </div>
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr scope="'row">
+                    <th scope="col">SL.No</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Added On</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                <% collection.forEach((collection,index)=> { %>
+
+                <tr scope="row">
+                    <td><%= index+1 %></td>
+                    <td><%= collection.collectionName %></td>
+                    <td><%= collection.createdAt.toLocaleDateString() %></td>
+                    <td>
+                        <% if(collection.isActive) { %>
+                            <span class="status active">Active</span>
+                        <% }else{ %>
+                            <span class="status block">Blocked</span>
+                        <% } %>
+                    </td>
+                    <td>
+                        <a href="" id="edit-collection-modal" data-bs-toggle="modal" data-bs-target="#editCollection" data-name="<%=collection.collectionName%>" data-id="<%=collection.id %>"><i class="bi bi-pencil-square"></i></a>
+                        <a href="/admin/collectionstatus?id=<%= collection.id %>&status=<%=collection.isActive %>" ><i class="bi bi-x-circle"></i></a>
+                        <a href="/admin/deletecollection/<%= collection.id %>" class="sweet-alert-delete"><i class="bi bi-trash3"></i></a>
+                    </td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<!-- add collection btn modal -->
+
+
+
+<div class="modal fade" id="addCollection">
+    <div class="modal-dialog">
+        <div class="modal-content collection-modal">
+            <div class="collection-container">
+                <h2 class="text-center mb-4 mt-2">Add Collection</h2>
+                <form class="form d-flex flex-column gap-3 pt-4" action="/admin/addcollection" method="post">
+                    <input type="text" name="collectionName"  class="form-control form-input" placeholder="Collection Name" required>
+                    <button type="submit" class="btn submit-btn">+ Add Collection</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- edit collection -->
+
+<div class="modal fade" id="editCollection">
+    <div class="modal-dialog">
+        <div class="modal-content collection-modal">
+            <div class="collection-container">
+                <h2 class="text-center mb-4 mt-2">Collection</h2>
+                <form class="form d-flex flex-column gap-3 pt-4" action="/admin/editcollection" method="post">
+                    <input type="hidden" name="collectionId" id="editCollectionId">
+                    <input type="text" name="collectionName" id="editCollectionName" class="form-control form-input" placeholder="Collection Name" required>
+                    <button type="submit" class="btn submit-btn edit-alert">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<%- include('adminFooter') %>

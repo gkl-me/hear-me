@@ -1,0 +1,32 @@
+<%- include('nav') %>
+
+<div class="container">
+    <div>
+        <p>
+        <a href="/user/home">Home</a>/<a href="/user/explore">Explore</a>
+        </p>
+    </div>
+    <div class="text-center">
+        <h1>ALL COLLECTION</h1>
+    </div>
+
+    <% for(let i=0; i<product.length; i+=3){%>
+    <div class="card-container d-flex justify-content-around my-4">
+        <% for(let j=i; j<product.length && j< i+3; j++  ) { %>
+        <div class="product-card d-flex flex-column justify-content-start ">
+            <a href="/user/product/<%= product[j].id %>" class="image-card">
+                <img src="../../<%= product[j].productImage[0] %>" alt="">
+            </a>
+            <h3 class="mt-3"><%= product[j].productName %></h3>
+            <h5><i class="bi bi-currency-rupee"></i><%= product[j].productPrice %></h5>
+        </div>
+        <% } %>
+        
+    </div>
+    <% } %>
+
+</div>
+
+
+
+<%- include('../admin/adminFooter') %>

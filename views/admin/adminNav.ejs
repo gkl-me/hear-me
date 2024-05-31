@@ -1,0 +1,80 @@
+
+<%- include('layout') %>
+
+<header class="nav-bar py-5 mb-0" >
+    <div class="container d-flex justify-content-between mb-2">
+        <h1 class="h3 mb-0 fs-2 website-head">HEAR ME</h1>
+        <div class="icons d-flex justify-content-between gap-5">
+                <a class="icons d-flex flex-column align-items-center" href="/admin/home">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="#10051F" class="bi bi-house-fill" viewBox="0 0 16 16">
+                        <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L8 2.207l6.646 6.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293z"/>
+                        <path d="m8 3.293 6 6V13.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 13.5V9.293z"/>
+                    </svg>
+                    <p>Home</p>
+                </a>
+                <a class="icons d-flex flex-column align-items-center" href="/admin/collection">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="#10051F" class="bi bi-bag-fill" viewBox="0 0 16 16">
+                        <path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1m3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4z"/>
+                    </svg>
+                    <p>Collection</p>
+                </a>
+                <a class="icons d-flex flex-column align-items-center " href="/admin/products">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="#10051F" class="bi bi-headphones" viewBox="0 0 16 16">
+                        <path d="M8 3a5 5 0 0 0-5 5v1h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V8a6 6 0 1 1 12 0v5a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1V8a5 5 0 0 0-5-5"/>
+                      </svg>
+                      <p>Products</p>
+                </a>
+                <a class="icons d-flex flex-column align-items-center " href="/admin/users">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="#10051F" class="bi bi-people-fill" viewBox="0 0 16 16">
+                        <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5.784 6A2.24 2.24 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.3 6.3 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1zM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5"/>
+                      </svg>
+                      <p>Customers</p>
+                </a>
+                <a class="icons d-flex flex-column align-items-center " href="/admin/orders">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="#10051F" class="bi bi-cart-fill" viewBox="0 0 16 16">
+                        <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>
+                      </svg>
+                      <p>Orders</p>
+                </a>
+                <a class="icons d-flex flex-column align-items-center " href="/admin/coupons">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="#10051F" class="bi bi-ticket-perforated-fill" viewBox="0 0 16 16">
+                        <path d="M0 4.5A1.5 1.5 0 0 1 1.5 3h13A1.5 1.5 0 0 1 16 4.5V6a.5.5 0 0 1-.5.5 1.5 1.5 0 0 0 0 3 .5.5 0 0 1 .5.5v1.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 11.5V10a.5.5 0 0 1 .5-.5 1.5 1.5 0 1 0 0-3A.5.5 0 0 1 0 6zm4-1v1h1v-1zm1 3v-1H4v1zm7 0v-1h-1v1zm-1-2h1v-1h-1zm-6 3H4v1h1zm7 1v-1h-1v1zm-7 1H4v1h1zm7 1v-1h-1v1zm-8 1v1h1v-1zm7 1h1v-1h-1z"/>
+                      </svg>
+                    <p>Coupons</p>
+                </a>
+                <a class="icons d-flex flex-column align-items-center " href="/admin/logout">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="#10051F" class="bi bi-power" viewBox="0 0 16 16">
+                        <path d="M7.5 1v7h1V1z"/>
+                        <path d="M3 8.812a5 5 0 0 1 2.578-4.375l-.485-.874A6 6 0 1 0 11 3.616l-.501.865A5 5 0 1 1 3 8.812"/>
+                      </svg>
+                    <p>Logout</p>
+                </a>
+
+        </div>
+    </div>
+    <div class="nav-line w-100"></div>
+</header>
+
+
+<% if(success.length > 0) { %>
+
+<div class="alert-container">
+    <div class="alert d-flex justify-content-between" role="alert">
+        <h5><%= success %></h5>
+        <button class="btn btn-close" data-bs-dismiss="alert"></button>
+    </div>
+</div>
+
+<% } %>
+
+
+<% if(error.length > 0) { %>
+
+<div class="alert-container ">
+    <div class="alert alert-error d-flex justify-content-between" role="alert">
+        <h5><%= error %></h5>
+        <button class="btn btn-close" data-bs-dismiss="alert"></button>
+    </div>
+</div>
+
+<% } %>

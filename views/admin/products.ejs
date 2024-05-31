@@ -1,0 +1,57 @@
+<%- include('adminNav') %>
+
+<div class="container mb-5">
+    <div class="search-container d-flex justify-content-between">
+        <div class="d-flex justify-content-between align-items-center gap-2">
+            <h2><%= title %></h2>
+            <form action="/admin/products" method="get" class="form  d-flex gap-1">
+                <input type="text" name="search" placeholder="search" class="form-input form-control">
+                <input type="submit" class="btn submit-btn" value="Search">
+            </form>
+        </div>
+        <a href="/admin/addproduct" type="button" class="btn submit-btn">+ Add Product</a>
+    </div>
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr scope="'row">
+                    <th scope="col">SL.No</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Stock</th>
+                    <th scope="col">Collection</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                <% products.forEach((product,index)=> { %>
+
+                <tr scope="row">
+                    <td><%= index+1 %></td>
+                    <td><%= product.productName %></td>
+                    <td><%= product.productPrice %></td>
+                    <td><%= product.productQuantity %></td>
+                    <td><%= product.productCollection %></td>
+                    <td>
+                        <% if(product.isActive) { %>
+                            <span class="status active">Active</span>
+                        <% }else{ %>
+                            <span class="status block">Blocked</span>
+                        <% } %>
+                    </td>
+                    <td>
+                        <a href="/admin/editproduct/<%= product.id %>"><i class="bi bi-pencil-square"></i></a>
+                        <a href="/admin/productstatus?id=<%= product.id %>&&status=<%= product.isActive%>"><i class="bi bi-x-circle"></i></a>
+                        <a href="/admin/products/<%= product.id %>"class="sweet-alert-delete"><i class="bi bi-trash3"></i></a>
+                    </td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<%- include('adminFooter') %>

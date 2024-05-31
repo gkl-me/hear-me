@@ -1,0 +1,52 @@
+<%- include('adminNav') %>
+
+<div class="container mb-5">
+    <div class="search-container d-flex justify-content-between">
+        <div class="d-flex justify-content-between align-items-center gap-2">
+            <h2><%= title %></h2>
+            <form action="/admin/users" method="get" class="form  d-flex gap-1">
+                <input type="text" name="search" placeholder="search" class="form-input form-control">
+                <input type="submit" class="btn submit-btn" value="Search">
+            </form>
+        </div>
+    </div>
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr scope="'row">
+                    <th scope="col">SL.No</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Phone</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                <% user.forEach((user,index)=> { %>
+
+                <tr scope="row">
+                    <td><%= index+1 %></td>
+                    <td><%= user.name %></td>
+                    <td><%= user.email %></td>
+                    <td><%= user.phone %></td>
+                    <td>
+                        <% if(user.isActive) { %>
+                            <span class="status active">Active</span>
+                        <% }else{ %>
+                            <span class="status block">Blocked</span>
+                        <% } %>
+                    </td>
+                    <td>
+                        <a href="/admin/userstatus?id=<%= user.id %>&&status=<%= user.isActive%>"><i class="bi bi-x-circle"></i></a>
+                    </td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<%- include('adminFooter') %>
