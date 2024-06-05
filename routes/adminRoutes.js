@@ -40,6 +40,9 @@ admin.get('/products/:id',isAdmin,productController.deleteProduct)
 
 admin.get('/productstatus',isAdmin,productController.status)
 
+
+
+
 //add product route
 admin.get('/addproduct',isAdmin,productController.addProduct)
 
@@ -49,6 +52,7 @@ admin.post('/addproduct',productController.multer,productController.addproductPo
 
 admin.get('/editproduct/:id',isAdmin,productController.editProduct)
 admin.post('/editproduct/:id',isAdmin,productController.multer,productController.editProductPost)
+
 
 //user
 admin.get('/users',isAdmin,userContoller.users)

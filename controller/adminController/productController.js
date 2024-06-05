@@ -2,6 +2,7 @@ const productSchema = require('../../model/product.model')
 const upload = require('../../middleware/multer')
 const collectionSchema = require('../../model/collection.model')
 const fs = require('fs');
+const path = require('path');
 
 const product = async (req,res) => {
 
@@ -102,15 +103,33 @@ const editProductPost = async (req,res)=> {
         
         const id = req.params.id;
 
+        const imagesToDelete = JSON.parse(req.body.deletedImages || '[]');
 
-        productSchema.findByIdAndUpdate(id,{productPrice: req.body.productPrice, productQuantity: req.body.productQuantity, productDescription: req.body.productDescription})
-        .then(()=>{
-            req.flash('success','Product successfully updated')
-            res.redirect('/admin/products')
-        }).catch((err)=>{
-            req.flash('error','Error occured while editing the product')
-            res.redirect('/admin/products')
+        imagesToDelete.forEach(x => fs.unlinkSync(x))
+
+
+        await productSchema.findByIdAndUpdate(id,
+            {productPrice: req.body.productPrice,
+            productQuantity: req.body.productQuantity,
+            productDescription: req.body.productDescription,
         })
+
+        if(imagesToDelete.length>0){
+            await productSchema.findByIdAndUpdate(id,{
+                $pull:{productImage: {$in: imagesToDelete}}
+            })
+        }
+
+        if (req.files && req.files.length > 0) {
+            const imagePaths = req.files.map(file => file.path.replace(/\\/g, '/'));
+            await productSchema.findByIdAndUpdate(id, {
+              $push: { productImage: { $each: imagePaths } }
+            });
+          }
+
+          req.flash('success','product successfully updated')
+          res.redirect('/admin/products')
+
 
     } catch (error) {
         console.log(`error while editing product post ${error} `)
@@ -156,5 +175,7 @@ const deleteProduct =async (req,res)=>{
         console.log(`error while deleting the product ${error}`)
     }
 }
+
+
 
 module.exports = {product,deleteProduct,status,addProduct,multer,addproductPost,editProduct,editProductPost}
