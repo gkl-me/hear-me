@@ -1,29 +1,96 @@
 <%- include('nav') %>
 
-<div class="otp-container">
-    <div class="otp-box">
+<div class="otp-container my-5 container w-50 d-flex flex-column align-items-center ">
+
+    <div class="text-center">
         <h2>Enter OTP Code</h2>
         <small>One Time Password (OTP) has been sent via Email to</small>
+        <b id="OTP-email"><%= email %></b>
+    </div>
+    
+    <div>
+        <h3>Enter OTP </h3>
+    </div>
+    
+    <div>
+        <form action="/user/verify" method="post" id="forgotpasswordotp">
 
-        <!-- email address from backend -->
-        <b id="OTP-email">
-         
-            
-            <%= email %>
+           <div class="d-flex gap-2">  
+                <% for(let i = 1; i <= 4; i++) { %>
+                    <input type="text" minlength="1" maxlength="1" name="otp<%= i %>" class="otp-input form-input form-control" autocomplete="off">
+                <% } %>
+           </div>
 
-        </b>
-        <small>Enter the OTP below to verify it</small>
-        <form action="/user/verify" method="post">
-            <input type="text" name="otp" minlength="6" maxlength="6" class="form-input form-control " required>
-
-            <small id="otp-timer-box">OTP is valid for <input type="text" class="form-input form-control" id="otp-timer"></input></small>
-
-
-            <input type="text" class="" value="<%= otpTime %>" id="otp-sended-time" hidden>
-
-            <button class="btn submit-btn" type="submit" id="otp-btn">Verify OTP</button>
+           <input type="hidden" name="otp" id="otp">
+           <input type="hidden" name="otpTime" value="<%= otpTime %>" id="otpTime"> 
         </form>
     </div>
+
+    <div id="otpTimer" class="mt-3"></div>
+    <div><a href="/user/resend/<%= email %>" id="resend-btn" class="btn submit-btn mt-3" style="display: none;">Resend</a></div>
+
+    <button id="verify-btn" class="mt-4 btn submit-btn" form="forgotpasswordotp">Verify</button>
+
 </div>
+
+<script>
+    const otpInputs = document.querySelectorAll('.otp-input');
+    const hiddenOtpInput = document.getElementById('otp');
+    const otpTimer = document.getElementById('otpTimer');
+    const otpTime = parseInt(document.getElementById('otpTime').value); // Parse integer value
+    const duration = 60 * 2 * 1000;
+    const verifyBtn = document.getElementById('verify-btn');
+    const resendBtn = document.getElementById('resend-btn');
+
+    otpInputs.forEach((input, index) => {
+        input.addEventListener('input', () => {
+            if (input.value.length === input.maxLength) {
+                const nextInput = otpInputs[index + 1];
+                if (nextInput) {
+                    nextInput.focus();
+                }
+            }
+            updateHiddenOtpInput();
+        });
+
+        input.addEventListener('keydown', (event) => {
+            if (event.key === 'Backspace' && input.value.length === 0) {
+                const prevInput = otpInputs[index - 1];
+                if (prevInput) {
+                    prevInput.focus();
+                }
+            }
+        });
+    });
+
+    function updateHiddenOtpInput() {
+        let otpValue = '';
+        otpInputs.forEach(input => {
+            otpValue += input.value;
+        });
+        hiddenOtpInput.value = otpValue;
+    }
+
+    function countDown() {
+    const interval = setInterval(() => {
+        const now = Date.now();
+        let remain = duration - (now - otpTime);
+
+        if (remain <= 0) {
+            otpTimer.remove()
+            verifyBtn.disabled = true;
+            resendBtn.style.display = 'block'; // Show resend button
+            clearInterval(interval);
+        } else {
+            const min = Math.floor((remain % (1000 * 60 * 60)) / (1000 * 60));
+            const sec = Math.floor((remain % (1000 * 60)) / 1000);
+            otpTimer.innerHTML = `Time remaining: ${min}:${sec < 10 ? '0' : ''}${sec}`;
+        }
+    }, 1000);
+}
+
+
+    countDown();
+</script>
 
 <%- include('../admin/adminFooter') %>

@@ -8,12 +8,22 @@ const productController = require('../controller/userController/productControlle
 const profileContoller = require('../controller/userController/profileController')
 const forgotPassword = require('../controller/userController/forgotPassword')
 
+const passport = require('passport')
+
+
+
 //main
 user.get('/',userContoller.user)
 
 //login
 user.get('/login',userContoller.login)
 user.post('/login',userContoller.loginPost)
+
+//auth
+
+user.get('/auth/google',userContoller.auth)
+user.get('/auth/google/redirect',passport.authenticate('google'),userContoller.authRedirect)
+
 
 //signup
 user.get('/signup',userContoller.signup)
@@ -22,7 +32,7 @@ user.post('/signup',userContoller.signgupPost)
 //otp verify
 user.get('/verify',userContoller.verify)
 user.post('/verify',userContoller.verifyPost)
-user.post('/resend/:email',userContoller.otpResend)
+user.get('/resend/:email',userContoller.otpResend)
 
 //home
 user.get('/home',homeController.home)
@@ -45,6 +55,7 @@ user.post('/forgotpassword',forgotPassword.forgotPasswordPost)
 user.get('/forgotpasswordotp',forgotPassword.forgotPasswordOtp)
 user.post('/forgotpasswordotp',forgotPassword.forgotPasswordOtpPost)
 user.post('/resetpassword',forgotPassword.resetPasswordPost)
+user.get('/forgotpassword-resend/:email',forgotPassword.forgotResend)
 
 
 

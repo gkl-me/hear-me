@@ -4,6 +4,7 @@ const sendOTP = require('../../services/emailSender')
 const bcrypt = require('bcrypt')
 
 
+//render the forgot password page
 const forgotPassword = (req,res)=>{
     try {
 
@@ -15,6 +16,8 @@ const forgotPassword = (req,res)=>{
     }
 }
 
+
+//forgot password post req controller
 const forgotPasswordPost = async(req,res)=>{
     
     try {
@@ -46,6 +49,8 @@ const forgotPasswordPost = async(req,res)=>{
     }
 
 }
+
+
 
 const forgotPasswordOtp = (req,res)=>{
     try {
@@ -103,10 +108,35 @@ const resetPasswordPost = async (req,res)=> {
 }
 
 
+const forgotResend = (req,res) => {
+
+    try {
+
+        const email = req.params.email
+
+        const otp = generatOTP();
+
+        sendOTP(email,otp)
+
+        req.session.otp = otp,
+        req.session.otpTime = Date.now();
+
+        req.flash('success','New OTP sent to mail')
+        res.redirect('/user/forgotpasswordotp')
+
+        
+    } catch (error) {
+        console.log(`error in resend otp forgot password  ${error}`)
+    }
+
+}
+
+
 module.exports = {
     forgotPassword,
     forgotPasswordPost,
     forgotPasswordOtp,
     forgotPasswordOtpPost,
-    resetPasswordPost
+    resetPasswordPost,
+    forgotResend
 }
