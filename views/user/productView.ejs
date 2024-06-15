@@ -4,12 +4,12 @@
 <div class="product-view">
     <div class="product-image-container">
         <div class="main-image">
-            <img src="../../<%= product.productImage[0]%>" alt="">
+            <img id="image-view" src="../../<%= product.productImage[0]%>" alt="">
         </div>
         <div class="d-flex gap-2 mt-4">
-            <% product.productImage.forEach((img)=>{ %>
-           <a href="">
-            <div class="product-image-min">
+            <% product.productImage.forEach((img,index)=>{ %>
+           <a>
+            <div class="product-image-min"  onclick="changeImage(`<%=img.replace(/\\/g, '\\\\')%>`)">
                 <img src="../../<%= img %>" alt="">
             </div>
            </a>
@@ -19,10 +19,15 @@
     <div class="product-details d-flex  flex-column gap-5">
         
         <div class="">
-            <h1><%= product.productName %></h1>
+            <h1><%= product.productName %>
+                <% if(product.productQuantity > 5){ %>
+                    <span class="text-success fs-4">In Stock</span>
+                    <% } else{ %>
+                        <span class="text-danger fs-4">Stock Left <%= product.productQuantity %> </span> 
+                   <% } %></h1>
             <h3><i class="bi bi-currency-rupee"></i><%= product.productPrice %></h3>
-            <a href="" class="btn submit-btn">Buy Now</a>
-            <a href="" class="btn submit-btn-light">
+            <a onclick="addToCart(`<%= product.id %>`,'<%= user %>')" class="btn submit-btn">Buy Now</a>
+            <a onclick="addToCart(`<%= product.id %>`,'<%= user %>')" class="btn submit-btn-light">
                 <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="#10051F" class="bi bi-cart-fill" viewBox="0 0 16 16">
                     <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>
                 </svg>Add to Cart
@@ -31,15 +36,36 @@
         <div class="product-description">
             <h4><%= product.productDescription %></h4>
         </div>
-        <div class="add-coupon">
-            <h4>Add Coupons</h4>
-            <form action="" class="d-flex gap-2">
-                <input type="text" class="form-input form-control ">
-                <input type="submit" class="btn submit-btn" value="Add">
-            </form>
-        </div>
     </div>
 </div>
+
+<script>
+    
+    // image zoom effect
+    const imageContainer = document.getElementsByClassName('main-image')[0]
+    const productImg = document.getElementById('image-view')
+
+                    imageContainer.addEventListener("mousemove", (e) => {
+                        const rect = e.target.getBoundingClientRect();
+                        const x = (e.clientX - rect.left) / rect.width;
+                        const y = (e.clientY - rect.top) / rect.height;
+
+                        productImg.style.transformOrigin = `${x * 100}% ${y * 100}%`;
+                        productImg.style.transform = "scale(1.5)";
+                    });
+
+                    imageContainer.addEventListener("mouseleave", () => {
+                        productImg.style.transformOrigin = "center"
+                        productImg.style.transform = "scale(1)"
+                    })
+
+
+    async function changeImage(src){
+        productImg.src = `../../${src}`;
+    }
+
+
+</script>
 
 <%- include('similarProduct') %>
 

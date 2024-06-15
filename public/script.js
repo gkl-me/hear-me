@@ -4,7 +4,12 @@
 const alertDuration=4000;
 
 setTimeout(() => {
-    document.getElementsByClassName('alert-container')[0].style.display ='none';        
+    const alerContainer = document.getElementsByClassName('alert-container')[0]
+    
+    if(alerContainer){
+        alerContainer.style.display ='none'; 
+    }
+    
 }, alertDuration);
 
 
@@ -134,153 +139,65 @@ cropper.destroy();
 
 
 
+// cart script addtoProduct
 
-// const addProductForm = document.getElementById('add-product-form')
-// const productName = document.getElementById('productName');
-// const productPrice = document.getElementById('productPrice');
-// const productQuantity = document.getElementById('productQuantity');
-// const productDescription = document.getElementById('productDescription');
-// const productCollection = document.getElementById('productCollection');
+function showError(msg){
+    Swal.fire({
+        icon:'error',
+        title: 'Oops',
+        text: msg,
+    })
+}
 
-
-
-// addProductForm.addEventListener('submit',(e)=> {
-        
-//     e.preventDefault();
-
-//     let isValid = true
-//     let errorMessage = ""
-
-//     if (document.getElementById('image-upload-preview').value==='') {
-//             errorMessage="Product image should not be empty";
-//             isValid = false;
-//         }
-//     if (productName.value.trim() === "" || productName.value.length<=0 || !isNaN(productName.value)) {
-//             errorMessage="Product Name should not be empty";
-//             isValid = false;
-//         }
-
-//     if (isNaN(productPrice.value) || parseFloat(productPrice.value) <= 0) {
-//             errorMessage='Product Price must be greater than zero and it should not contain any alphabets'
-//             isValid = false;
-//         }
-
-//     if (isNaN(productQuantity.value) || parseInt(productQuantity.value) <= 0) {
-//             errorMessage='Product quality should be a number and it must be greater than zero'
-//             isValid = false;
-//         }
-                
-//     if (productCollection.value === null) {
-//             errorMessage='Product category is cannot be empty'
-//             isValid = false
-//         }
-
-//     if (productDescription.value.length <= 10 || productDescription.value.length > 500 || productDescription.value.trim === "") {
-//             errorMessage='Product description must be between 10 to 80 word '
-//             isValid = false
-//         }
+async function addToCart(productId,user){
 
 
+        try {
 
-    
-//     if(isValid===false){
-//             Swal.fire({
-//                 title:"Invalid Inputs",
-//                 text:errorMessage,
-//                 icon:"error",
-//                 confirmButtonColor: '#10051F',
-//                 confirmButtonText: 'OK'
-//             })
-//             }else{
-//                 addProductForm.submit()
-//             }
-// });
+            if(user){
 
+                console.log(user)
 
-
-
-// otp timer 
-
-const otpTimerBox = document.getElementById('otp-timer-box');
-const otpTimer = document.getElementById('otp-timer');
-const otpSendedTime = document.getElementById('otp-sended-time');
-const submitOtp = document.getElementById('otp-btn');
-const otpEmail=document.getElementById('OTP-email')
-
-const checkTimeOut = setInterval(() => {
-
-     // maximum OTP timer is set for two seconds
-     let otpMaxTimer = 120000
-
-    // current date in milliseconds
-    let currentDate = Date.now()
-
-    // otp sended time from backend that is store in a hidden box in the form
-    let otpExpireTime = otpSendedTime.value
-
-    // get the difference between current time and otp sended time
-    let timeLeft = currentDate - otpExpireTime
-
-    // difference between the maximum time and time left
-    let displayTimer=otpMaxTimer-timeLeft
-
-    // Calculate minutes and seconds
-    let minutes = Math.floor((displayTimer % (1000 * 60 * 60)) / (1000 * 60));
-    let seconds = Math.floor((displayTimer % (1000 * 60)) / 1000);
-
-    // Format minutes and seconds to display with leading zeros
-    let formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-
-    // Update the timer display
-    otpTimer.value = formattedTime;
-
-
-    // if the maximum time limit of 2 minute which is 120000 seconds
-    if (timeLeft > 120000) {
-        Swal.fire({
-            title: "Timer expired",
-            text: "Do you want to resend the OTP?",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#10051F",
-            cancelButtonColor: "#D5D2FF",
-            confirmButtonText: "Yes, resend it!"
-        }).then((result) => {
-
-            // if user confirm to resend the otp then using fetch resend the otp
-            if (result.isConfirmed) {
-                console.log(otpEmail.innerHTML);
-
-                const URL = `/user/resend/${otpEmail.innerHTML}`
-                fetch(URL, {
-                    method: "GET"
-                }).then((response) => {
-                    if (response.ok) {
-                        Swal.fire({
-                            icon: "success",
-                            title: "OTP Sended successfully"
-                        }).then(()=>{
-                            window.location.reload()
-                        })
-                    } else {
-                        Swal.fire({
-                            icon: "error",
-                            title: "Oops...",
-                            text: "Something went wrong!",
-                        }).then(() => {
-                            window.location = "/user/signup"
-                        })
-                    }
+                const res = await fetch('/user/cart/add',{
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({productId, quantity: 1}),
                 })
+        
+                if(res.ok){
+        
+                    Swal.fire({
+                        icon: "success",
+                        title: "Product added to cart",
+                        showConfirmButton: false,
+                        timer: 700,
+                    }).then(() => {
+                        window.location.reload()
+                    })
+        
+                    const cart = await res.json();
+                       
+                }else{
+        
+                    const error = await res.text();
+        
+                    showError(error)
+        
+                }
+            }else{
+                window.location.href = '/user/login'
+
             }
 
-            // if the user cancel the otp resend request then redirect to signup page
-            if (result.isDismissed) {
-                window.location = "/user/signup"
-            }
-        });
-        clearInterval(checkTimeOut)
-    }
+            
+            
+        } catch (error) {
+    
+                console.log(`error at add to cart fetch ${error}`)
+    
+        }
 
-}, 1000);
+}
 

@@ -1,0 +1,194 @@
+<%- include('adminNav') %>
+
+<style>
+    .card {
+        box-shadow: 0 20px 27px 0 rgb(0 0 0 / 5%);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        word-wrap: break-word;
+        background-color: #fff;
+        background-clip: border-box;
+        border: 0 solid rgba(0,0,0,.125);
+        border-radius: 1rem;
+    }
+    .text-reset {
+        --bs-text-opacity: 1;
+        color: inherit!important;
+    }
+    .table td, .table th {
+        vertical-align: middle;
+        border-top: 1px solid #dee2e6;
+    }
+    .table tfoot td {
+        border-top: none;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="container">
+        <!-- Title -->
+        <div class="d-flex justify-content-between align-items-center py-3">
+            <h2 class="h5 mb-0"><a href="#" class="text-muted"></a> Order #<%= order.id %></h2>
+        </div>
+        <!-- Main content -->
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Details -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="mb-3 d-flex justify-content-between">
+                            <div>
+                                <% let date = new Date(order.createdAt) %>
+                                <span class="me-3">Order Date : <%= date.getDate()%>/<%= date.getMonth()+1 %>/<%= date.getFullYear() %></span>
+                            </div>
+                        </div>
+                        <table class="table table-borderless">
+                            <tbody>
+
+                                <% order.products.forEach((product)=> { %>
+
+                                <tr>
+                                    <td>
+                                        <div class="d-flex mb-2">
+                                            <div class="flex-shrink-0">
+                                                <img src="../../../<%= product.productId.productImage[0] %>" width="50" class="img-fluid">
+                                            </div>
+                                            <div class="flex-lg-grow-1 align-content-center ms-3">
+                                                <h6 class="large mb-0"><b><%= product.productId.productName %></b></h6>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><%= product.quantity %></td>
+                                    <td class="text-end"><i class="bi bi-currency-rupee"></i><%= product.price * product.quantity %></td>
+                                </tr>
+
+                                <% }) %>
+
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="2" class="text-start">Subtotal</td>
+                                    <td class="text-end"><i class="bi bi-currency-rupee"></i><%= order.totalPrice %></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" class="text-start">Shipping</td>
+                                    <td class="text-end"><i class="bi bi-currency-rupee"></i>00.00</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" class="text-start">Discount</td>
+                                    <td class="text-danger text-end"><i class="bi bi-currency-rupee"></i>00.00</td>
+                                </tr>
+                                <tr class="fw-bold">
+                                    <td colspan="2" class="text-start">TOTAL</td>
+                                    <td class="text-end"><%= order.totalPrice %></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                <!-- Payment -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <h3 class="h6">Payment Method</h3>
+                                <p><%= order.paymentMethod %> <br>Total: <%= order.totalPrice %></p>
+                            </div>
+                            <div class="col-lg-6">
+                                <h3 class="h6">Billing address</h3>
+                                <address>
+                                    <%= order.address.addressLine %><br>
+                                    <%= order.address.city %><br>
+                                    <%= order.address.state %><br>
+                                    <%= order.address.pincode %><br>
+                                </address>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card mb-4">
+                    <!-- Shipping information -->
+                    <div class="card-body">
+                        <h3 class="h6">Contact Information</h3>
+                        <hr>
+                        <h3 class="h6">Address</h3>
+                        <address>
+                            <%= order.contactInfo.name %><br>
+                            <%= order.contactInfo.email %><br>
+                            <%= order.contactInfo.phone %><br>
+                        </address>
+                    </div>
+                </div>
+                <!-- Change Order Status -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h3 class="h6">Change Order Status</h3>
+                        <form id="orderStatus-form" action="/admin/orders/update/<%=order.id%>" method="post" onsubmit="submitForm(event)" >
+                            <div class="mb-3">
+                                <label for="orderStatus" class="form-label">Order Status</label>
+                                <select class="form-select" name="status" id="orderStatus">
+                                    <option value="processing" <%= order.status === 'processing' ? 'selected' : '' %>>Processing</option>
+                                    <option value="cancelled" <%= order.status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+                                    <option value="shipped" <%= order.status === 'shipped' ? 'selected' : '' %>>Shipped</option>
+                                    <option value="delivered" <%= order.status === 'delivered' ? 'selected' : '' %>>Delivered</option>
+                                    <option value="returned" <%= order.status === 'returned' ? 'selected' : '' %>>Returned</option>
+                                </select>
+                            </div>
+                            <button class="btn submit-btn" >Update Status</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+async function submitForm(event){
+    
+    
+    try {
+        
+        event.preventDefault()
+
+        const form = document.getElementById('orderStatus-form')
+        const formData = new FormData(form)
+        const data = Object.fromEntries(formData.entries())
+
+        const res = await fetch(`/admin/orders/update/<%=order.id%>`,{
+
+            method: 'POST',
+            headers : {
+                'Content-Type':'application/json'
+            },
+            body : JSON.stringify(data)
+
+        })
+
+        if(res.ok){
+
+            window.location.href = '/admin/orders'
+
+        }else{
+
+            const error = await res.text()
+            showError(error)
+
+        }
+        
+    } catch (error) {
+        console.log(`error from change status fetch ${error}`)
+    }
+
+}
+
+
+</script>
+
+<%- include('adminFooter') %>

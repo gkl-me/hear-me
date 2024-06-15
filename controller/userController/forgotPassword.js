@@ -9,7 +9,7 @@ const forgotPassword = (req,res)=>{
     try {
 
         req.session.user='';
-        res.render('user/forgotPassword',{title:"Forgot Password"})
+        res.render('user/forgotPassword',{title:"Forgot Password", user:req.session.user})
         
     } catch (error) {
         console.log(`error while rendering forgotpassword page ${error}`)
@@ -55,7 +55,7 @@ const forgotPasswordPost = async(req,res)=>{
 const forgotPasswordOtp = (req,res)=>{
     try {
 
-        res.render('user/forgotPasswordOtp',{title: 'OTP verification',email:req.session.email,otpTime:req.session.otpTime})
+        res.render('user/forgotPasswordOtp',{title: 'OTP verification',email:req.session.email,otpTime:req.session.otpTime,user:req.session.user})
         
     } catch (error) {
         console.log(`error while loading forgot password otp ${error}`)
@@ -68,7 +68,7 @@ const forgotPasswordOtpPost = async (req,res)=>{
 
         if(req.session.otp !== undefined){
             if(req.body.otp === req.session.otp){
-                res.render('user/resetpassword',{title: 'Reset Password'})
+                res.render('user/resetpassword',{title: 'Reset Password',user:req.session.user})
             }else{
                 req.flash('error','Invaild OTP')
                 res.redirect('/user/login')

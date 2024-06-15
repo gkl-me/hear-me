@@ -32,7 +32,7 @@
                     <td><%= collection.createdAt.toLocaleDateString() %></td>
                     <td>
                         <% if(collection.isActive) { %>
-                            <span class="status active">Active</span>
+                            <span class="status actived">Active</span>
                         <% }else{ %>
                             <span class="status block">Blocked</span>
                         <% } %>
@@ -59,9 +59,9 @@
         <div class="modal-content collection-modal">
             <div class="collection-container">
                 <h2 class="text-center mb-4 mt-2">Add Collection</h2>
-                <form class="form d-flex flex-column gap-3 pt-4" action="/admin/addcollection" method="post">
-                    <input type="text" name="collectionName"  class="form-control form-input" placeholder="Collection Name" required>
-                    <button type="submit" class="btn submit-btn">+ Add Collection</button>
+                <form class="form d-flex flex-column gap-3 pt-4" action="/admin/addcollection" method="post" id="addCollection-form">
+                    <input type="text" name="collectionName" id="addCollection-name"  class="form-control form-input" placeholder="Collection Name" required>
+                    <button type="submit" id="addCollection-button" class="btn submit-btn">+ Add Collection</button>
                 </form>
             </div>
         </div>
@@ -76,7 +76,7 @@
         <div class="modal-content collection-modal">
             <div class="collection-container">
                 <h2 class="text-center mb-4 mt-2">Collection</h2>
-                <form class="form d-flex flex-column gap-3 pt-4" action="/admin/editcollection" method="post">
+                <form class="form d-flex flex-column gap-3 pt-4" action="/admin/editcollection" id="editCollection-form" method="post">
                     <input type="hidden" name="collectionId" id="editCollectionId">
                     <input type="text" name="collectionName" id="editCollectionName" class="form-control form-input" placeholder="Collection Name" required>
                     <button type="submit" class="btn submit-btn edit-alert">Save Changes</button>
@@ -86,6 +86,39 @@
     </div>
 </div>
 
+
+
+<script>
+
+    document.getElementById('addCollection-form').addEventListener('submit',(e)=>{
+        const name = document.getElementById('addCollection-name').value;
+
+        if(name.trim()===""){
+            e.preventDefault()
+            Swal.fire({
+                title: "Invalid Input",
+                text: "name cannot be empty",
+                icon: "error"
+        });
+        }
+    })
+
+    document.getElementById('editCollection-form').addEventListener('submit',(e)=>{
+
+        const name = document.getElementById('editCollectionName').value
+
+        if(name.trim()===""){
+            e.preventDefault();
+            Swal.fire({
+                title: "Invalid Input",
+                text: "name cannot be empty",
+                icon: "error"
+        });
+        }
+
+    })
+
+</script>
 
 
 

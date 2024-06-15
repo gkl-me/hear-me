@@ -16,6 +16,10 @@ const connectDB = require("./config/connection")
 //flash message
 const flash = require('connect-flash')
 
+//google auth
+const passport = require("passport")
+const auth = require('./config/auth')
+
 
 const port = process.env.PORT || 3000
 
@@ -45,6 +49,9 @@ app.use(session({
 
 app.use(flash())
 
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use((req,res,next)=>{
     res.locals.success = req.flash('success');
     res.locals.error = req.flash('error')
@@ -62,6 +69,7 @@ app.get("/",(req,res)=>{
     }
     
 })
+
 
 
 //routes

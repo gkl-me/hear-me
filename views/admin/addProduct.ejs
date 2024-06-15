@@ -78,5 +78,67 @@
   </div>
   
 
+  <script>
+  
+  document.addEventListener('DOMContentLoaded', function() {
+    const addProductForm = document.getElementById('add-product-form');
+    const productName = document.getElementsByName('productName')[0];
+    const productPrice = document.getElementsByName('productPrice')[0];
+    const productQuantity = document.getElementsByName('productQuantity')[0];
+    const productDescription = document.getElementsByName('productDescription')[0];
+    const productCollection = document.getElementsByName('productCollection')[0];
+    const productImage = document.getElementById('image-upload');
+
+    addProductForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        let isValid = true;
+        let errorMessage = "";
+
+        if (productImage.files.length === 0) {
+            errorMessage = "Product image should not be empty";
+            isValid = false;
+        }
+
+        if (productName.value.trim() === "" || !isNaN(productName.value)) {
+            errorMessage = "Product Name should not be empty or a number";
+            isValid = false;
+        }
+
+        if (isNaN(productPrice.value) || parseFloat(productPrice.value) <= 0) {
+            errorMessage = 'Product Price must be greater than zero and it should not contain any alphabets';
+            isValid = false;
+        }
+
+        if (isNaN(productQuantity.value) || parseInt(productQuantity.value) <= 0) {
+            errorMessage = 'Product quantity should be a number and it must be greater than zero';
+            isValid = false;
+        }
+
+        if (productCollection.value === "") {
+            errorMessage = 'Product category cannot be empty';
+            isValid = false;
+        }
+
+        if (productDescription.value.length <= 10 || productDescription.value.length > 500 || productDescription.value.trim() === "") {
+            errorMessage = 'Product description must be between 10 to 500 characters';
+            isValid = false;
+        }
+
+        if (!isValid) {
+            Swal.fire({
+                title: "Invalid Inputs",
+                text: errorMessage,
+                icon: "error"
+            });
+        } else {
+            addProductForm.submit();
+        }
+    });
+});
+
+
+
+  </script>
 
 <%- include('adminFooter') %>

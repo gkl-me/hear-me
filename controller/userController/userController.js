@@ -18,7 +18,7 @@ const signup = (req, res) => {
     if (req.session.user) {
       res.redirect("/user/home");
     } else {
-      res.render("user/signup", { title: "Signup" });
+      res.render("user/signup", { title: "Signup",user: req.session.user });
     }
   } catch (error) {
     console.log(`error while rendering signup page ${error} `);
@@ -67,6 +67,7 @@ const verify = (req, res) => {
       title: "OTP verify",
       email: req.session.email,
       otpTime: req.session.otpTime,
+      user : req.session.user
     });
   } catch (error) {
     console.log(`error while rendering verify page ${error}`);
@@ -128,7 +129,7 @@ const login = (req, res) => {
   if (req.session.user) {
     res.redirect("/user/home");
   } else {
-    res.render("user/login", { title: "Login" });
+    res.render("user/login", { title: "Login" , user: req.session.user });
   }
 };
 

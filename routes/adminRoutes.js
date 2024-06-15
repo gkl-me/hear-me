@@ -5,6 +5,7 @@ const adminController = require('../controller/adminController/adminController')
 const collectionController = require('../controller/adminController/collectionController')
 const productController = require('../controller/adminController/productController')
 const userContoller = require('../controller/adminController/userController')
+const orderController = require('../controller/adminController/orderController')
 
 
 //home routes
@@ -57,6 +58,13 @@ admin.post('/editproduct/:id',isAdmin,productController.multer,productController
 //user
 admin.get('/users',isAdmin,userContoller.users)
 admin.get('/userstatus',isAdmin,userContoller.status)
+
+
+//order 
+
+admin.get('/orders',isAdmin,orderController.renderOrder)
+admin.get('/orders/edit/:id',isAdmin,orderController.editOrder)
+admin.post('/orders/update/:id',isAdmin,orderController.updateStatus)
 
 
 module.exports=admin

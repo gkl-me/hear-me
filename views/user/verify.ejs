@@ -89,6 +89,26 @@
     }, 1000);
 }
 
+function validateOtpInputs() {
+        for (const input of otpInputs) {
+            if (!input.value) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Please fill in all OTP fields.',
+                });
+                return false;
+            }
+        }
+        return true;
+    }
+
+    verifyBtn.addEventListener('click', (event) => {
+        if (!validateOtpInputs()) {
+            event.preventDefault(); // Prevent form submission
+        }
+    });
+
 
     countDown();
 </script>

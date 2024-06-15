@@ -8,7 +8,7 @@ const home= async (req,res)=> {
 
         const product = await productSchema.find();
 
-        res.render('user/home',{title:'Home',product})
+        res.render('user/home',{title:'Home',product, user:req.session.user })
 
         
     } catch (error) {
@@ -22,7 +22,7 @@ const explore = async(req,res)=>{
         
         const product = await productSchema.find()
 
-        res.render('user/explore',{title:'explore',product})
+        res.render('user/explore',{title:'explore',product, user:req.session.user})
 
     } catch (error) {
         console.log(`error from explore rendering ${error}`)

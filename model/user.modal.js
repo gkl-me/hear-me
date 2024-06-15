@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const addressSchema = require('./address.modal')
 
 const schema = new mongoose.Schema({
     name:{
@@ -7,7 +8,6 @@ const schema = new mongoose.Schema({
     },
     phone:{
         type:Number,
-        required: true
     },
     email:{
         type:String,
@@ -15,12 +15,20 @@ const schema = new mongoose.Schema({
     },
     password: {
         type:String,
-        required: true
     },
+
+    address:{
+        type: [addressSchema],
+        default: []
+    },
+
     isActive:{
         type:Boolean,
         default:true
+    },
+    googleId:{
+        type: String,
     }
-})
+},{timestamps: true})
 
 module.exports = mongoose.model('user',schema)

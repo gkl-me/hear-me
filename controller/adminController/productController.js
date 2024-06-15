@@ -101,31 +101,37 @@ const editProduct = async (req,res) => {
 const editProductPost = async (req,res)=> {
     try {
         
+        //get the id of the product from params
         const id = req.params.id;
 
+        //array of images to delete if not empty 
         const imagesToDelete = JSON.parse(req.body.deletedImages || '[]');
 
+        //delete image from the backend 
         imagesToDelete.forEach(x => fs.unlinkSync(x))
 
-
+        //update the product with id 
         await productSchema.findByIdAndUpdate(id,
             {productPrice: req.body.productPrice,
             productQuantity: req.body.productQuantity,
             productDescription: req.body.productDescription,
         })
 
+        //if image present remove from db 
         if(imagesToDelete.length>0){
             await productSchema.findByIdAndUpdate(id,{
                 $pull:{productImage: {$in: imagesToDelete}}
             })
         }
 
+        //add input file path into db 
         if (req.files && req.files.length > 0) {
             const imagePaths = req.files.map(file => file.path.replace(/\\/g, '/'));
             await productSchema.findByIdAndUpdate(id, {
               $push: { productImage: { $each: imagePaths } }
             });
           }
+
 
           req.flash('success','product successfully updated')
           res.redirect('/admin/products')

@@ -105,19 +105,22 @@
 
     }
 
+    //empty array for images to be deleted
     let deletedImages = []
 
+    //onclick function to add delete image path 
     function deleteImage(imagePath) {
     deletedImages.push(imagePath);
     document.getElementById('deletedImages').value = JSON.stringify(deletedImages);
     
+    //remove the image box preview for image path
     const imageBox = document.querySelector(`div[data-image-path="${imagePath.replace(/\\/g, '\\\\')}"]`);
     if (imageBox) {
       imageBox.remove();
     }
   }
 
-  
+
   
 
 

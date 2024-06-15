@@ -1,0 +1,335 @@
+<%- include('nav') %>
+
+<style>
+    .card {
+        border: 1px solid #ddd;
+        margin: 10px;
+    }
+    .card-body {
+        background-color: #D5D2FF;
+        border-radius: 5px;
+        font-family: 'Archivo', sans-serif;
+        padding: 0.5rem;
+    }
+    .avatar-lg {
+        width: 50px;
+        height: 50px;
+    }
+    .font-size-18 {
+        font-size: 1.2em;
+    }
+    .font-size-16 {
+        font-size: 1em;
+    }
+    .text-truncate {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+    .mbottom-2 {
+        margin-bottom: 0.5rem !important;
+    }
+    .mtop-2 {
+        margin-top: 0.5rem !important;
+    }
+    .pbottom-3 {
+        padding-bottom: 1rem !important;
+    }
+    .list-inline-item {
+        margin-right: 0.5rem;
+    }
+    .container {
+        padding: 20px;
+    }
+    .nav-pills .nav-link {
+        border: 1px solid #D5D2FF;
+        background-color: #F0F0F0;
+        color: #000;
+    }
+    .nav-pills .nav-link.active {
+        background-color: #2b0a5a;
+        color: #ffffff;
+    }
+    .product-item {
+        background-color: #ffffff;
+        padding: 20px;
+        border: 4px solid #D5D2FF;
+        border-radius: 5px;
+    }
+</style>
+
+<div class="container my-5">
+    <div class="row">
+        <div class="col-xl-4">
+            <ul class="nav nav-pills flex-column" id="order-menu" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link active" id="order-status-tab" data-bs-toggle="pill" href="#order-status" role="tab" aria-controls="order-status" aria-selected="true">Orders status</a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link" id="order-history-tab" data-bs-toggle="pill" href="#order-history" role="tab" aria-controls="order-history" aria-selected="false">Order history</a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link" id="canceled-order-tab" data-bs-toggle="pill" href="#canceled-order" role="tab" aria-controls="canceled-order" aria-selected="false">Canceled Orders</a>
+                </li>
+            </ul>
+        </div>
+        <div class="col-xl-8">
+            <div class="tab-content" id="order-content">
+                <div class="tab-pane fade show active" id="order-status" role="tabpanel" aria-labelledby="order-status-tab">
+                    <% if(order.length > 0 && order.some(o => o.status !== 'delivered' && o.status !== 'cancelled')) { %>
+                        <% order.filter(o => o.status !== 'delivered' && o.status !== 'cancelled').forEach((order) => { %>
+                        <div class="card border shadow-none mb-4">
+                            <div class="card-body">
+                                <div class="product-list">
+                                    <% order.products.forEach((product) => { %>
+                                    <div class="product-item d-flex align-items-start border-bottom pbottom-3 mb-3">
+                                        <div class="me-3">
+                                            <img src="../../<%= product.productId.productImage[0]%>" alt="" class="avatar-lg rounded">
+                                        </div>
+                                        <div class="flex-grow-1 align-self-center overflow-hidden">
+                                            <div class="mb-3">
+                                                <h5 class="text-truncate font-size-18"><a href="#" class="text-dark"><%= product.productId.productName %></a></h5>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <div class="mtop-2">
+                                                        <p class="text-muted mbottom-2">Price</p>
+                                                        <h5 class="mb-0 mtop-2"><i class="bi bi-currency-rupee"></i><%= product.price %></h5>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="mtop-2">
+                                                        <p class="text-muted mbottom-2">Quantity</p>
+                                                        <h5><%= product.quantity %></h5>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="mtop-2">
+                                                        <p class="text-muted mbottom-2">Total</p>
+                                                        <h5><i class="bi bi-currency-rupee"></i><%= product.price * product.quantity %></h5>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <% }) %>
+                                </div>
+                                <div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="mtop-2">
+                                                <p class="text-muted mbottom-2">Status</p>
+                                                <h5><%= order.status %></h5>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mtop-2">
+                                                <p class="text-muted mbottom-2">Total Price</p>
+                                                <h5><i class="bi bi-currency-rupee"></i><%= order.totalPrice %></h5>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mtop-2">
+                                                <p class="text-muted mbottom-2">Action</p>
+                                                <h5><a class="btn submit-btn" id="cancelOrder" data-bs-toggle="modal" data-bs-target="#cancelOrderModal" data-id="<%= order.id %>" >Cancel Order</a></h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <% }) %>
+                    <% } else { %>
+                        <div class="card border shadow-none">
+                            <div class="card-body">
+                                <h5 class="card-title">Order</h5>
+                                <p class="card-text">You don't have any current orders</p>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+                <div class="tab-pane fade" id="order-history" role="tabpanel" aria-labelledby="order-history-tab">
+                    <% if(order.length > 0 && order.some(o => o.status === 'delivered')) { %>
+                        <% order.filter(o => o.status === 'delivered').forEach((order) => { %>
+                        <div class="card border shadow-none mb-4">
+                            <div class="card-body">
+                                <div class="product-list">
+                                    <% order.products.forEach((product) => { %>
+                                    <div class="product-item d-flex align-items-start border-bottom pbottom-3 mb-3">
+                                        <div class="me-3">
+                                            <img src="../../<%= product.productId.productImage[0]%>" alt="" class="avatar-lg rounded">
+                                        </div>
+                                        <div class="flex-grow-1 align-self-center overflow-hidden">
+                                            <div class="mb-3">
+                                                <h5 class="text-truncate font-size-18"><a href="#" class="text-dark"><%= product.productId.productName %></a></h5>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <div class="mtop-2">
+                                                        <p class="text-muted mbottom-2">Price</p>
+                                                        <h5 class="mb-0 mtop-2"><i class="bi bi-currency-rupee"></i><%= product.price %></h5>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="mtop-2">
+                                                        <p class="text-muted mbottom-2">Quantity</p>
+                                                        <h5><%= product.quantity %></h5>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="mtop-2">
+                                                        <p class="text-muted mbottom-2">Total</p>
+                                                        <h5><i class="bi bi-currency-rupee"></i><%= product.price * product.quantity %></h5>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <% }) %>
+                                </div>
+                                <div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="mtop-2">
+                                                <p class="text-muted mbottom-2">Status</p>
+                                                <h5><%= order.status %></h5>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mtop-2">
+                                                <p class="text-muted mbottom-2">Total Price</p>
+                                                <h5><i class="bi bi-currency-rupee"></i><%= order.totalPrice %></h5>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mtop-2">
+                                                <p class="text-muted mbottom-2">Action</p>
+                                                <h5><a href="" class="btn submit-btn">Return Order</a></h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <% }) %>
+                    <% } else { %>
+                        <div class="card border shadow-none">
+                            <div class="card-body">
+                                <h5 class="card-title">Order History</h5>
+                                <p class="card-text">Here you can view your past orders.</p>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+                <div class="tab-pane fade" id="canceled-order" role="tabpanel" aria-labelledby="canceled-order-tab">
+                    <% if(order.length > 0 && order.some(o => o.status === 'cancelled')) { %>
+                        <% order.filter(o => o.status === 'cancelled').forEach((order) => { %>
+                        <div class="card border shadow-none mb-4">
+                            <div class="card-body">
+                                <div class="product-list">
+                                    <% order.products.forEach((product) => { %>
+                                    <div class="product-item d-flex align-items-start border-bottom pbottom-3 mb-3">
+                                        <div class="me-3">
+                                            <img src="../../<%= product.productId.productImage[0]%>" alt="" class="avatar-lg rounded">
+                                        </div>
+                                        <div class="flex-grow-1 align-self-center overflow-hidden">
+                                            <div class="mb-3">
+                                                <h5 class="text-truncate font-size-18"><a href="#" class="text-dark"><%= product.productId.productName %></a></h5>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <div class="mtop-2">
+                                                        <p class="text-muted mbottom-2">Price</p>
+                                                        <h5 class="mb-0 mtop-2"><i class="bi bi-currency-rupee"></i><%= product.price %></h5>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="mtop-2">
+                                                        <p class="text-muted mbottom-2">Quantity</p>
+                                                        <h5><%= product.quantity %></h5>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="mtop-2">
+                                                        <p class="text-muted mbottom-2">Total</p>
+                                                        <h5><i class="bi bi-currency-rupee"></i><%= product.price * product.quantity %></h5>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <% }) %>
+                                </div>
+                                <div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="mtop-2">
+                                                <p class="text-muted mbottom-2">Status</p>
+                                                <h5><%= order.status %></h5>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mtop-2">
+                                                <p class="text-muted mbottom-2">Total Price</p>
+                                                <h5><i class="bi bi-currency-rupee"></i><%= order.totalPrice %></h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <% }) %>
+                    <% } else { %>
+                        <div class="card border shadow-none">
+                            <div class="card-body">
+                                <h5 class="card-title">Canceled Orders</h5>
+                                <p class="card-text">Here you can view your canceled orders.</p>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Order Modal -->
+<div class="modal fade" id="cancelOrderModal" tabindex="-1" aria-labelledby="cancelOrderModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cancelOrderModalLabel">Cancel Order</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <label for="cancelReason" class="form-label">Reason for Cancellation</label>
+                        <textarea class="form-control" id="cancelReason" rows="3" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a  class="btn submit-btn" id="submitCancelOrder">Cancel</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    const orderCancel = document.querySelectorAll('#cancelOrder').forEach((btn)=>{
+        btn.addEventListener('click',function(){
+            const orderId = this.getAttribute('data-id');
+            console.log(orderId)
+            document.getElementById('submitCancelOrder').setAttribute('href', `/user/orderCancel/${orderId}`);
+        })
+    })
+
+</script>
+
+
+
+<%- include('../admin/adminFooter') %>
