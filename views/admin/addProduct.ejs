@@ -1,5 +1,14 @@
 <%- include('adminNav') %>
 
+<style>
+
+    .imageToCrop img{
+        width: 100%;
+        display: block;
+    }
+
+</style>
+
 <div class="container container-add-products">
     <div class="add-products">
         <form action="/admin/addproduct" method="post" enctype="multipart/form-data" id="add-product-form">
@@ -37,13 +46,14 @@
                     <textarea class="form-control form-input" name="productDescription" id="productDescription" required></textarea>
                 </div>
 
-                <div class="d-flex justify-content-center mt-3  ">
-                    <input type="file" name="image" id="image-upload" accept="image" multiple class="d-none">
-                    <label for="image-upload" class="btn submit-btn">ChooseImages</label>
-                </div>
+                <a class="btn submit-btn w-25 mt-3" onclick="addImage()">Add Images</a>
+
+                <div class="add-input" id="add-input"></div>
 
                 <div class="image-upload-preview" id="image-upload-preview"></div>
             </div>
+
+            <div id="croppedImagesContainer"></div>
 
         </form>
     </div>
@@ -55,90 +65,114 @@
 
 </div>
 
-<!-- Cropper js Modal -->
-<div class="modal fade" id="cropperModal">
-    <div class="modal-dialog modal-dialog-centered " >
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="cropperModalLabel">Crop Image</h5>
-          <button type="button" class="btn btn-close" data-bs-dismiss="modal">
-          </button>
+
+ 
+    <!-- Cropper Modal -->
+    <div class="modal fade" id="cropperModal" tabindex="-1" aria-labelledby="cropperModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cropperModalLabel">Crop Image</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="imageToCrop">
+                        <img id="imageToCrop" src="" alt="Image to Crop">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="cropImage()">Crop</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
         </div>
-        <div class="modal-body">
-          <div class="img-container">
-            <img id="image-to-crop" src="">
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn submit-btn-light" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn submit-btn" id="crop-button">Crop</button>
-        </div>
-      </div>
     </div>
-  </div>
-  
 
-  <script>
-  
-  document.addEventListener('DOMContentLoaded', function() {
-    const addProductForm = document.getElementById('add-product-form');
-    const productName = document.getElementsByName('productName')[0];
-    const productPrice = document.getElementsByName('productPrice')[0];
-    const productQuantity = document.getElementsByName('productQuantity')[0];
-    const productDescription = document.getElementsByName('productDescription')[0];
-    const productCollection = document.getElementsByName('productCollection')[0];
-    const productImage = document.getElementById('image-upload');
 
-    addProductForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-
-        let isValid = true;
-        let errorMessage = "";
-
-        if (productImage.files.length === 0) {
-            errorMessage = "Product image should not be empty";
-            isValid = false;
-        }
-
-        if (productName.value.trim() === "" || !isNaN(productName.value)) {
-            errorMessage = "Product Name should not be empty or a number";
-            isValid = false;
-        }
-
-        if (isNaN(productPrice.value) || parseFloat(productPrice.value) <= 0) {
-            errorMessage = 'Product Price must be greater than zero and it should not contain any alphabets';
-            isValid = false;
-        }
-
-        if (isNaN(productQuantity.value) || parseInt(productQuantity.value) <= 0) {
-            errorMessage = 'Product quantity should be a number and it must be greater than zero';
-            isValid = false;
-        }
-
-        if (productCollection.value === "") {
-            errorMessage = 'Product category cannot be empty';
-            isValid = false;
-        }
-
-        if (productDescription.value.length <= 10 || productDescription.value.length > 500 || productDescription.value.trim() === "") {
-            errorMessage = 'Product description must be between 10 to 500 characters';
-            isValid = false;
-        }
-
-        if (!isValid) {
-            Swal.fire({
-                title: "Invalid Inputs",
-                text: errorMessage,
-                icon: "error"
+    <script>
+        let cropper;
+        let currentInput;
+        let currentImageBox;
+    
+        function addImage() {
+            const inputDiv = document.getElementById('add-input');
+            const newInput = document.createElement('input');
+            newInput.type = 'file';
+            newInput.name = 'image';
+            newInput.style.display = 'none';
+    
+            newInput.addEventListener('change', (event) => {
+                if (event.target.files && event.target.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const previewDiv = document.getElementById('image-upload-preview');
+                        const imageBox = document.createElement('div');
+                        imageBox.className = 'product-image-box d-flex flex-column mt-3';
+                        imageBox.innerHTML = `<img src="${e.target.result}" alt="" class="preview-img">`;
+    
+                        let deleteImage = document.createElement('button');
+                        deleteImage.textContent = 'Delete';
+                        deleteImage.classList.add('btn', 'submit-btn', 'mt-2');
+                        deleteImage.addEventListener('click', () => {
+                            imageBox.remove();
+                            newInput.remove();
+                            const hiddenInput = document.querySelector(`input[data-image-id="${newInput.dataset.imageId}"]`);
+                            if (hiddenInput) hiddenInput.remove();
+                        });
+    
+                        imageBox.querySelector('.preview-img').addEventListener('click', () => {
+                            document.getElementById('imageToCrop').src = e.target.result;
+                            var modal = new bootstrap.Modal(document.getElementById('cropperModal'));
+                            modal.show();
+                            currentInput = newInput;
+                            currentImageBox = imageBox;
+                            if (cropper) {
+                                cropper.destroy();
+                            }
+                            cropper = new Cropper(document.getElementById('imageToCrop'), {
+                                aspectRatio: 1,
+                                viewMode: 1
+                            });
+                        });
+    
+                        imageBox.appendChild(deleteImage);
+                        previewDiv.appendChild(imageBox);
+                    };
+                    reader.readAsDataURL(event.target.files[0]);
+                }
             });
-        } else {
-            addProductForm.submit();
+    
+            // newInput.dataset.imageId = Date.now(); // Assign a unique ID to each input for tracking
+            inputDiv.appendChild(newInput);
+            newInput.click();
         }
-    });
-});
-
-
-
-  </script>
+    
+        function cropImage() {
+            const canvas = cropper.getCroppedCanvas();
+            const croppedImageBase64 = canvas.toDataURL('image/png');
+    
+            // Update the preview with the cropped image
+            currentImageBox.querySelector('.preview-img').src = croppedImageBase64;
+    
+            // Store the base64 cropped image in a new hidden input field
+            const croppedImagesContainer = document.getElementById('croppedImagesContainer');
+            const newHiddenInput = document.createElement('input');
+            newHiddenInput.type = 'hidden';
+            newHiddenInput.name = 'croppedImages[]';  // Use an array name to handle multiple images
+            newHiddenInput.value = croppedImageBase64;
+            // newHiddenInput.dataset.imageId = currentInput.dataset.imageId; // Use the same ID for tracking
+    
+            croppedImagesContainer.appendChild(newHiddenInput);
+    
+            // Remove the original input
+            currentInput.remove();
+    
+            // Hide the modal
+            var modal = bootstrap.Modal.getInstance(document.getElementById('cropperModal'));
+            modal.hide();
+        }
+    </script>
+    
+    
 
 <%- include('adminFooter') %>

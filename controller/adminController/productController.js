@@ -23,7 +23,7 @@ const product = async (req,res) => {
 const addProduct = async (req,res) => {
     try {
         
-        const productCollection = await collectionSchema.find()
+        const productCollection = await collectionSchema.find({isActive: true})
 
         res.render('admin/addProduct',{title: "Add Product",productCollection})
 
@@ -42,8 +42,31 @@ const multer = upload.array('image',3);
 
 const addproductPost = async (req,res) => {
     try {
-        
+
+        const uploadDir = path.join(__dirname, '..','..', 'uploads'); 
+
         const imgArray = []
+
+        let croppedImages = req.body.croppedImages
+        console.log(croppedImages)
+        
+        if (!Array.isArray(croppedImages)) {
+            // Ensure that croppedImages is always an array
+            croppedImages = [croppedImages];
+        }
+
+        croppedImages.forEach((imageData, index) => {
+            const base64Data = imageData.split(',')[1];
+            const originalName = `image-${index}`; // Placeholder for the original name
+            const fileName = `${Date.now()}-${originalName}.png`;
+            const filePath = path.join('uploads', fileName);
+    
+            // Save the image
+            fs.writeFileSync(filePath, Buffer.from(base64Data, 'base64'));
+            imgArray.push(filePath);
+        });
+        
+        
 
         req.files.forEach((img) =>{
             imgArray.push(img.path)
