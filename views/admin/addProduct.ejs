@@ -142,7 +142,7 @@
                 }
             });
     
-            // newInput.dataset.imageId = Date.now(); // Assign a unique ID to each input for tracking
+            newInput.dataset.imageId = Date.now(); // Assign a unique ID to each input for tracking
             inputDiv.appendChild(newInput);
             newInput.click();
         }
@@ -160,7 +160,7 @@
             newHiddenInput.type = 'hidden';
             newHiddenInput.name = 'croppedImages[]';  // Use an array name to handle multiple images
             newHiddenInput.value = croppedImageBase64;
-            // newHiddenInput.dataset.imageId = currentInput.dataset.imageId; // Use the same ID for tracking
+            newHiddenInput.dataset.imageId = currentInput.dataset.imageId; // Use the same ID for tracking
     
             croppedImagesContainer.appendChild(newHiddenInput);
     

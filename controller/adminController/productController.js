@@ -48,23 +48,27 @@ const addproductPost = async (req,res) => {
         const imgArray = []
 
         let croppedImages = req.body.croppedImages
-        console.log(croppedImages)
         
-        if (!Array.isArray(croppedImages)) {
-            // Ensure that croppedImages is always an array
-            croppedImages = [croppedImages];
+        if(croppedImages){
+            if (!Array.isArray(croppedImages)) {
+                // Ensure that croppedImages is always an array
+                croppedImages = [croppedImages];
+            }
+            
+            if(croppedImages.length >0 ){
+                croppedImages.forEach((imageData, index) => {
+                    const base64Data = imageData.split(',')[1];
+                    const originalName = `image-${index}`; // Placeholder for the original name
+                    const fileName = `${Date.now()}-${originalName}.png`;
+                    const filePath = path.join('uploads', fileName);
+            
+                    // Save the image
+                    fs.writeFileSync(filePath, Buffer.from(base64Data, 'base64'));
+                    imgArray.push(filePath);
+                });
+            }
         }
 
-        croppedImages.forEach((imageData, index) => {
-            const base64Data = imageData.split(',')[1];
-            const originalName = `image-${index}`; // Placeholder for the original name
-            const fileName = `${Date.now()}-${originalName}.png`;
-            const filePath = path.join('uploads', fileName);
-    
-            // Save the image
-            fs.writeFileSync(filePath, Buffer.from(base64Data, 'base64'));
-            imgArray.push(filePath);
-        });
         
         
 
