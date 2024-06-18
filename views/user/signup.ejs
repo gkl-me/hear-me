@@ -1,49 +1,36 @@
 <%- include('nav') %>
 
-
-<div class="signup d-flex justify-content-center my-5 ">
-    <div class="signup-form-container d-flex flex-column  text-center ">
+<div class="signup d-flex justify-content-center my-5">
+    <div class="signup-form-container d-flex flex-column text-center">
         <h2 class="text-center">Create an account</h2>
         <p class="text-center">Enter your email to sign up for this app</p>
-        <form action="/user/signup" method="post" id="signup-form" class="needs-validation" novalidate>
+        <form action="/user/signup" method="post" id="signup-form">
             <div class="form-group">
-                <input type="text" class="form-control form-input" id="name-signup" name="name" placeholder="Full Name" autocomplete="off" required>
-                <div class="invalid-feedback">
-                    Please enter your full name.
-                </div>
+                <input type="text" class="form-control form-input" id="name-signup" name="name" placeholder="Full Name" autocomplete="off">
+                <small id="name-error" class="text-danger"></small>
             </div>
             <div class="form-group">
-                <input type="email" class="form-control form-input" id="email-signup" name="email" placeholder="Email Address" autocomplete="off" required>
-                <div class="invalid-feedback">
-                    Please enter your email.
-                </div>
+                <input type="email" class="form-control form-input" id="email-signup" name="email" placeholder="Email Address" autocomplete="off">
+                <small id="email-error" class="text-danger"></small>
             </div>
             <div class="form-group">
-                <input type="text" class="form-control form-input" id="phone-signup" name="phone" placeholder="Phone Number" autocomplete="off" required>
-                <div class="invalid-feedback">
-                    Please enter your phone.
-                </div>
+                <input type="text" class="form-control form-input" id="phone-signup" name="phone" placeholder="Phone Number" autocomplete="off">
             </div>
 
             <div class="form-group position-relative d-flex align-items-center">
-                <input type="password" class="form-control form-input" id="pass-signup" name="password" placeholder="Password" required>
-                <span id="toggle-password" onclick="togglePassword('pass-signup',this)" class="me-1 password-toggle align-content-center position-absolute end-0"><i class="bi bi-eye"></i></span>
-                <div class="invalid-feedback">
-                    Please enter your password.
-                </div>
-            </div>            
-
+                <input type="password" class="form-control form-input" id="pass-signup" name="password" placeholder="Password">
+                <span id="toggle-password" onclick="togglePassword('pass-signup', this)" class="me-1 password-toggle align-content-center position-absolute end-0"><i class="bi bi-eye"></i></span>
+            </div>
+            <small id="password-error" class="text-danger mb-2 d-flex flex-column"></small>
 
             <div class="form-group position-relative d-flex align-items-center">
-                <input type="password" class="form-control form-input" id="confirm-signup" placeholder="Confirm Password" required>
-                <span id="toggle-password" onclick="togglePassword('confirm-signup',this)" class="me-1 password-toggle align-content-center position-absolute end-0"><i class="bi bi-eye"></i></span>
-                <div class="invalid-feedback">
-                    Password must start with a capital letter, be at least 8 characters long
-                </div>
+                <input type="password" class="form-control form-input" id="confirm-signup" placeholder="Confirm Password">
+                <span id="toggle-password" onclick="togglePassword('confirm-signup', this)" class="me-1 password-toggle align-content-center position-absolute end-0"><i class="bi bi-eye"></i></span>
             </div>
+            <small  id="confirm-password-error" class="text-danger mb-2 d-flex flex-column"></small>
 
             <button type="submit" id="signup-button" class="btn submit-btn">Sign up with email</button>
-            <p class="text-center text-black-50  mt-3">Already have an account? <a href="/user/login">Login</a></p>
+            <p class="text-center text-black-50 mt-3">Already have an account? <a href="/user/login">Login</a></p>
             <hr>
             <button type="button" class="btn submit-btn-light">
                 <img width="25px" height="25px" src="/public/assets/google-icon" alt="">
@@ -56,74 +43,68 @@
     </div>
 </div>
 
-
 <script>
+// Toggle password visibility
+function togglePassword(fieldId, toggleElement) {
+    const passwordField = document.getElementById(fieldId);
+    const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+    passwordField.setAttribute('type', type);
+    toggleElement.innerHTML = type === 'password' ? '<i class="bi bi-eye"></i>' : '<i class="bi bi-eye-slash"></i>';
+}
 
+document.getElementById('signup-form').addEventListener('submit', (event) => {
+    event.preventDefault();
 
-//toggle password eye 
+    // Get form values
+    const name = document.getElementById('name-signup').value.trim();
+    const email = document.getElementById('email-signup').value.trim();
+    const password = document.getElementById('pass-signup').value;
+    const confirmPassword = document.getElementById('confirm-signup').value;
 
-    function togglePassword(fieldId, toggleElement) {
-        const passwordField = document.getElementById(fieldId);
-        const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
-        passwordField.setAttribute('type', type);
-        toggleElement.innerHTML = type === 'password' ? '<i class="bi bi-eye"></i>' : '<i class="bi bi-eye-slash"></i>';
+    // Error elements
+    const nameError = document.getElementById('name-error');
+    const emailError = document.getElementById('email-error');
+    const passwordError = document.getElementById('password-error');
+    const confirmPasswordError = document.getElementById('confirm-password-error');
+
+    // Reset errors
+    nameError.textContent = '';
+    emailError.textContent = '';
+    passwordError.textContent = '';
+    confirmPasswordError.textContent = '';
+
+    let isValid = true;
+
+    // Validate name
+    if (!name) {
+        nameError.textContent = 'Name cannot be empty or whitespace.';
+        isValid = false;
     }
 
-    (function () {
-    const form = document.getElementById('signup-form');
+    // Validate email
+    if (!email) {
+        emailError.textContent = 'Email cannot be empty or whitespace.';
+        isValid = false;
+    }
 
-    form.addEventListener('submit', function(event) {
-        let isValid = true;
+    // Validate password
+    const passwordPattern = /^(?=.*[A-Z]).{8,}$/;
+    if (!passwordPattern.test(password)) {
+        passwordError.textContent = 'Password must start with a capital letter and be at least 8 characters long.';
+        isValid = false;
+    }
 
-        // Name validation
-        const nameInput = document.getElementById('name-signup');
-        if (nameInput.value.trim() === "") {
-            isValid = false;
-            nameInput.setCustomValidity("Please enter your full name without leading or trailing spaces.");
-        } else {
-            nameInput.setCustomValidity("");
-        }
+    // Validate confirm password
+    if (password !== confirmPassword) {
+        confirmPasswordError.textContent = 'Passwords do not match.';
+        isValid = false;
+    }
 
-        // Phone validation
-        const phoneInput = document.getElementById('phone-signup');
-        const phoneRegex = /^\d{10}$/;
-        if (!phoneRegex.test(phoneInput.value)) {
-            isValid = false;
-            phoneInput.setCustomValidity("Please enter a valid phone number with 10 digits.");
-        } else {
-            phoneInput.setCustomValidity("");
-        }
-
-        // Password validation
-        const passwordInput = document.getElementById('pass-signup');
-        const passwordValue = passwordInput.value;
-        const passwordRegex = /^[A-Z][A-Za-z\d@$!%*?&]{7,}$/;
-        if (!passwordRegex.test(passwordValue)) {
-            isValid = false;
-            passwordInput.setCustomValidity("Password must start with a capital letter, be at least 8 characters long, and contain no spaces.");
-        } else {
-            passwordInput.setCustomValidity("");
-        }
-
-        // Confirm password validation
-        const confirmPasswordInput = document.getElementById('confirm-signup');
-        if (confirmPasswordInput.value !== passwordValue) {
-            isValid = false;
-            confirmPasswordInput.setCustomValidity("Passwords do not match.");
-        } else {
-            confirmPasswordInput.setCustomValidity("");
-        }
-
-        if (!isValid || !form.checkValidity()) {
-            event.preventDefault();
-            event.stopPropagation();
-        }
-
-        form.classList.add('was-validated');
-    });
-
-})();
-
+    // If valid, submit form
+    if (isValid) {
+        document.getElementById('signup-form').submit();
+    }
+});
 </script>
 
 <%- include('../admin/adminFooter') %>
