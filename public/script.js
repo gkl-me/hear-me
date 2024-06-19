@@ -55,89 +55,6 @@ editCollection.forEach((ele)=>{
 
 
 
-const imageUpload = document.getElementById('image-upload')
-const imageUploadPreview = document.getElementById('image-upload-preview')
-let cropper;
-let currentImage;
-const cropperModalElement = document.getElementById('cropperModal');
-const cropperModal = new bootstrap.Modal(document.getElementById('cropperModal'), {});
-
-
-imageUpload.addEventListener('change', () => {
-    imageUploadPreview.innerHTML = "";
-
-    if(imageUpload.files.length!=3){
-        Swal.fire({
-            icon: 'error',
-            title: 'Oops',
-            text: 'Select three Images'
-        })
-
-        imageUpload.value = ''
-
-    }else{
-
-        for(let i=0; i<imageUpload.files.length;i++){
-            let reader = new FileReader();
-            let figure = document.createElement('div')
-            figure.classList.add('image-preview-box')
-    
-            reader.onload = () => {
-    
-                let img = document.createElement('img')
-                img.classList.add("preview-img");
-                img.setAttribute("src", reader.result);
-                figure.appendChild(img);
-    
-                // Create delete button with class delete-button
-                let deleteButton = document.createElement("button");
-                deleteButton.textContent = "Delete";
-                deleteButton.classList.add('btn',"submit-btn",'delete-button');
-                deleteButton.addEventListener("click", () => {
-                // Remove the parent div (figure) when the delete button is clicked
-                    figure.remove();
-                    imageUpload.value= '';
-                });
-    
-    
-                figure.appendChild(deleteButton)
-                imageUploadPreview.appendChild(figure)
-    
-                img.addEventListener("click", () => {
-                    currentImage = img;
-                    document.getElementById('image-to-crop').src = reader.result;
-                    cropperModal.show();
-                    cropperModalElement.addEventListener('shown.bs.modal', () => {
-                        if (cropper) cropper.destroy();
-                        const imageToCrop = document.getElementById('image-to-crop');
-                        cropper = new Cropper(imageToCrop, {
-                            aspectRatio: 0,
-                            viewMode: 0,
-                            autoCropArea: 0,
-                            responsive: true,
-                            background: false,
-                        });
-                    }, { once: true });
-                });
-                };
-    
-                reader.readAsDataURL(imageUpload.files[i]);
-                }
-    }
-
-            });
-
- // Crop button event listener
-document.getElementById('crop-button').addEventListener('click', () => {
-const canvas = cropper.getCroppedCanvas();
-currentImage.src = canvas.toDataURL();
-cropperModal.hide();
-cropper.destroy();
-});
-
-
-
-
 
 // cart script addtoProduct
 
@@ -156,7 +73,7 @@ async function addToCart(productId,user){
 
             if(user){
 
-                console.log(user)
+                // console.log(user)
 
                 const res = await fetch('/user/cart/add',{
                     method: 'POST',
@@ -199,5 +116,50 @@ async function addToCart(productId,user){
     
         }
 
+}
+
+
+
+
+//add to wishlist fetch 
+
+async function addToWishlist(productId,user,wishlistIcon){
+    try {
+
+        if(user){
+
+            const res = await fetch('/user/addToWishlist',{
+                method: 'POST',
+                headers: {
+                    'Content-Type':'application/json'
+                },
+                body: JSON.stringify({productId})
+
+            })
+
+            if(res.ok){
+                const data = await res.json()
+                if(data.inWishlist){
+                    // wishlist heart to red
+                    wishlistIcon.classList.remove('bi-heart')
+                    wishlistIcon.classList.add('bi-heart-fill')
+                    wishlistIcon.style.color= 'red';
+                }else{
+                    wishlistIcon.classList.remove('bi-heart-fill')
+                    wishlistIcon.classList.add('bi-heart')
+                    wishlistIcon.style.color = 'black'
+                }
+            }else{
+                showError(`failed to update wishlist`)
+            }
+
+        }else{
+            window.location.href = '/user/login'
+        }
+        
+    } catch (error) {
+        console.log(`error in add to wishlist fetch ${error}`)
+        showError('failed to add to wishlist')
+    }
 }
 

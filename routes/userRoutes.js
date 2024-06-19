@@ -10,6 +10,7 @@ const forgotPassword = require('../controller/userController/forgotPassword')
 const cartController = require('../controller/userController/cartController')
 const checkoutController = require('../controller/userController/checkoutController')
 const orderController = require('../controller/userController/orderController')
+const wishlistController = require('../controller/userController/wishlistController')
 
 const passport = require('passport')
 
@@ -85,6 +86,10 @@ user.post('/checkout',isUser,checkoutController.checkoutProceed)
 //order page
 user.get('/orders',isUser,orderController.order)
 user.get('/orderCancel/:id',isUser,orderController.cancelOrder)
+
+
+//add to wishlist
+user.post('/addToWishlist',isUser,wishlistController.addToWishlist)
 
 
 module.exports = user;
