@@ -42,7 +42,8 @@ a{
 a:hover svg path{
     fill:#2b0a5a;
 }
-a:hover{
+
+.atag:hover{
     transform: scale(1.1);
     color: #2b0a5a;
 }
@@ -551,6 +552,13 @@ textarea{
     font-size: 25px;
 }
 
+.bi-heart-fill{
+    color: red;
+}
+
+.bi-heart{
+    color: #10051F;
+}
 
 /* title container */
 
@@ -580,3 +588,14 @@ textarea{
     border-color: #2b0a5a;
 }
 
+
+#toast-container {
+    position: fixed;
+    top: 2rem;
+    right: 1rem;
+    z-index: 1055;
+}
+
+#wishlist-toast{
+    background-color: #D5D2FF;
+}

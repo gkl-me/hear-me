@@ -143,11 +143,12 @@ async function addToWishlist(productId,user,wishlistIcon){
                     // wishlist heart to red
                     wishlistIcon.classList.remove('bi-heart')
                     wishlistIcon.classList.add('bi-heart-fill')
-                    wishlistIcon.style.color= 'red';
+                    showToast('Product added to wishlist.');
+                    // wishlistIcon.style.color= 'red';
                 }else{
                     wishlistIcon.classList.remove('bi-heart-fill')
                     wishlistIcon.classList.add('bi-heart')
-                    wishlistIcon.style.color = 'black'
+                    // wishlistIcon.style.color = 'black'
                 }
             }else{
                 showError(`failed to update wishlist`)
@@ -161,5 +162,15 @@ async function addToWishlist(productId,user,wishlistIcon){
         console.log(`error in add to wishlist fetch ${error}`)
         showError('failed to add to wishlist')
     }
+}
+
+
+function showToast(message) {
+    const toastElement = document.getElementById('wishlist-toast');
+    const toastBody = toastElement.querySelector('.toast-body');
+    toastBody.textContent = message;
+
+    const toast = new bootstrap.Toast(toastElement);
+    toast.show();
 }
 

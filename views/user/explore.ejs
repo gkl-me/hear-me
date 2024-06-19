@@ -62,10 +62,15 @@
                                 </div>
                                 <div class="d-flex gap-2 align-items-center">
                                     <a onclick="addToCart('<%= item.id %>','<%= user %>')" class="btn submit-btn">Add to Cart</a>
-                                    <% if(item.id) %>
+                                    <% if(user && wishlist.products.some(product => product.productId.toString() === item.id )) { %>
                                     <span class="wishlist-heart" id="wishlist-heart">
-                                         <i class="bi bi-heart" onclick="addToWishlist('<%= item.id %>','<%= user %>',this)"></i>
+                                         <i class="bi bi-heart-fill"  onclick="addToWishlist('<%= item.id %>','<%= user %>',this)"></i>
                                     </span>
+                                    <% }else{ %>
+                                        <span class="wishlist-heart" id="wishlist-heart">
+                                            <i class="bi bi-heart" onclick="addToWishlist('<%= item.id %>','<%= user %>',this)"></i>
+                                       </span>
+                                    <% } %>
 
                                 </div>
                             </div>
@@ -101,9 +106,15 @@
                                 </div>
                                 <div class="d-flex gap-2 align-items-center">
                                     <a onclick="addToCart('<%= item.id %>','<%= user %>')" class="btn submit-btn">Add to Cart</a>
-                                <span class="wishlist-heart" id="wishlist-heart">
-                                    <i class="bi bi-heart" onclick="addToWishlist('<%= item.id %>','<%= user %>',this)" ></i>
-                                </span>
+                                    <% if(user && wishlist.products.some(product => product.productId.toString() === item.id )) { %>
+                                        <span class="wishlist-heart" id="wishlist-heart">
+                                             <i class="bi bi-heart-fill"  onclick="addToWishlist('<%= item.id %>','<%= user %>',this)"></i>
+                                        </span>
+                                        <% }else{ %>
+                                            <span class="wishlist-heart" id="wishlist-heart">
+                                                <i class="bi bi-heart" onclick="addToWishlist('<%= item.id %>','<%= user %>',this)"></i>
+                                           </span>
+                                        <% } %>
                                 </div>
                             </div>
                         </div>
