@@ -11,6 +11,7 @@ const cartController = require('../controller/userController/cartController')
 const checkoutController = require('../controller/userController/checkoutController')
 const orderController = require('../controller/userController/orderController')
 const wishlistController = require('../controller/userController/wishlistController')
+const walletController = require('../controller/userController/walletController')
 
 const passport = require('passport')
 
@@ -81,15 +82,27 @@ user.post('/cart/remove',isUser,cartController.removeFromCart)
 user.get('/checkout',isUser,checkoutController.renderCheckout)
 user.post('/checkout/addAddress',isUser,checkoutController.addAddress)
 user.post('/checkout',isUser,checkoutController.checkoutProceed)
+user.post('/payment',isUser,checkoutController.payment)
 
 
 //order page
 user.get('/orders',isUser,orderController.order)
 user.get('/orderCancel/:id',isUser,orderController.cancelOrder)
+user.get('/returnOrder/:id',isUser,orderController.returnOrder)
+user.post('/applycoupon',isUser,checkoutController.applyCoupon)
+
+user.get('/orderSuccess',isUser,orderController.orderSucces)
+user.get('/orderFailure',isUser,orderController.orderFailure)
+
+//wallet 
+user.get('/wallet',isUser,walletController.renderWallet)
+
 
 
 //add to wishlist
 user.post('/addToWishlist',isUser,wishlistController.addToWishlist)
+user.get('/wishlist',isUser,wishlistController.renderWishlist)
+user.post('/updateWishlist',isUser,wishlistController.updateWishlist)
 
 
 module.exports = user;

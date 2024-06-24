@@ -36,5 +36,47 @@ const addToWishlist = async (req,res) => {
     }
 }
 
+const renderWishlist = async (req,res)=>{
 
-module.exports = {addToWishlist}
+    try {
+        
+        const userId = req.session.user
+
+        const wishlist = await wishlistSchema.findOne({userId}).populate('products.productId')
+
+        if (wishlist && wishlist.products) {
+            wishlist.products.reverse();
+          }
+
+        res.render('user/wishlist',{title:"Wishlist",wishlist,user:userId})
+
+    } catch (error) {
+        console.log(`error while rendering wishlist ${error}`)
+    }
+
+}
+
+
+const updateWishlist = async (req,res)=>{
+
+    try {
+        
+        const userId = req.session.user
+
+        const wishlist = await wishlistSchema.findOne({userId}).populate('products.productId')
+
+        if(wishlist && wishlist.products){
+            wishlist.products.reverse();
+        }
+
+        res.render('user/wishlistRow',{wishlist,user:userId})
+
+    } catch (error) {
+        console.log(`error wishlist update ${error}`)
+        res.status(500).send('failed to update wishlist')
+    }
+
+}
+
+
+module.exports = {addToWishlist,renderWishlist,updateWishlist}

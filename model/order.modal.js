@@ -38,16 +38,26 @@ const orderSchema = mongoose.Schema({
         type: Number,
         required: true
     },
+    discountAmount:{
+        type:Number,
+        default: 0
+    },
 
     status : {
         type: String,
-        enum: ['processing','cancelled','shipped','delivered','returned'],
+        enum: ['pending','processing','cancelled','shipped','delivered','returned'],
         default : 'processing'
     },
 
     paymentMethod : {
         type: String,
         required: true
+    },
+
+    paymentDetail: {
+        paymentId: String,
+        razorpayOrderId: String,
+        paymentStatus: String
     }
 
 },{timestamps: true})

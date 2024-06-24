@@ -177,6 +177,7 @@ const logout = (req, res) => {
   }
 };
 
+
 //auth controller
 
 const auth = passport.authenticate("google", {

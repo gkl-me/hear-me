@@ -199,17 +199,16 @@
                         <h5 class="font-size-14 mb-3">Payment method :</h5>
                         <div class="payment-methods">
                             <label class="card-radio-label">
-                                <input type="radio" name="pay-method" id="pay-methodoption1" class="card-radio-input">
+                                <input type="radio" name="paymentMethod" value="wallet" id="pay-methodoption1" class="card-radio-input" <% if (balance < total) { %>disabled<% } %>>
                                 <span class="card-radio py-3 text-center text-truncate">
-                                    <i class="bi bi-credit-card-fill d-block h2 mb-3"></i>
-                                    Credit / Debit Card
+                                    <i class="bi bi-wallet d-block h2 mb-3"></i>
+                                    Wallet (Balance: <%= balance %>)
                                 </span>
                             </label>
                             <label class="card-radio-label">
-                                <input type="radio" name="pay-method" id="pay-methodoption2" class="card-radio-input">
-                                <span class="card-radio py-3 text-center text-truncate">
-                                    <i class="bi bi-paypal d-block h2 mb-3"></i>
-                                    Paypal
+                                <input type="radio" name="paymentMethod" value="razor-pay" id="pay-methodoption2" class="card-radio-input">
+                                <span class="card-radio wallet-card py-3 text-center text-truncate">
+                                    <img src="../../public/assets/razorpay-icon.svg"alt="" width="100px" height="65px">
                                 </span>
                             </label>
                             <label class="card-radio-label">
@@ -232,6 +231,14 @@
                 <h5 class="font-size-16 mb-0">Order Summary</h5>
             </div>
             <div class="card-body">
+                <div class="d-flex gap-2 m-2">
+                    <input type="text" id="couponCode" class="form-control" name="couponCode" placeholder="Enter coupon code">
+                    <button type="button" id="applyCouponBtn" onclick="applyCoupon()" class="btn submit-btn">Apply</button>
+                </div>
+                <div id="couponBadge" class="mb-3" style="display: none;">
+                    <span class="badge bg-success">Coupon Applied: <span id="appliedCouponCode"></span></span>
+                    <button type="button" class="btn btn-danger btn-sm ms-2" onclick="removeCoupon()">Remove</button>
+                </div>
                 <div class="table-responsive">
                     <table class="table mb-0">
                         <thead>
@@ -243,11 +250,7 @@
                         </thead>
                         <tbody>
 
-                            <% 
-                            let total = 0;
-                            cart.products.forEach((product,index)=>{ 
-                                total += product.quantity * product.price
-                                %>
+                            <% cart.products.forEach((product,index)=>{  %>
                             <tr>
                                 <th><%= product.productId.productName %></th>
                                 <th><%= product.quantity %></th>
@@ -255,13 +258,18 @@
                             </tr>
 
                             <% } ) %>
+                            <tr>
+                                <th>Discount</th>
+                                <th></th>
+                                <th class="text-danger">-<i class="bi bi-currency-rupee"></i><span id="discountAmount">0.00</span></th>
+                            </tr>
                             
                         </tbody>
                         <tfoot>
                             <tr>
                                 <th>Total :</th>
                                 <th></th>
-                                <td><i class="bi bi-currency-rupee"></i><%= total %></td>
+                                <td><i class="bi bi-currency-rupee"></i><span id="totalPriceCheckout"><%= total %></span></td>
                             </tr>
                         </tfoot>
                     </table>
@@ -329,7 +337,7 @@
 </div>
 
 
-<!-- Modal HTML -->
+<!-- Modal HTML
 <div id="myModal" class="modal fade" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-confirm" role="document">
 		<div class="modal-content">
@@ -347,8 +355,10 @@
 			</div>
 		</div>
 	</div>
-</div>
+</div> -->
 
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 
 <script>
@@ -422,9 +432,11 @@
 
             event.preventDefault();
 
+        const couponCode = document.getElementById('couponCode').value;
         const form = document.getElementById('checkout-form')
         const formData = new FormData(form)
-        const data = Object.fromEntries(formData.entries());
+        let data = Object.fromEntries(formData.entries());
+        data={...data,...{couponCode:couponCode}}
 
         const res = await fetch('/user/checkout',{
             method: 'POST',
@@ -435,13 +447,99 @@
         })
 
         if(res.ok){
-            showModal();
-            setTimeout(() => {
-                window.location.href = '/user/orders';
-            }, 7000); 
-            document.getElementById('goToHome').addEventListener('click',()=>{
-                window.location.href = '/user/home'
-            })
+
+            if(paymentMethod.value === 'razor-pay'){
+
+                const responseData = await res.json();
+                
+                const options = {
+                    key: 'rzp_test_AIcpmo1LwYwWKt',
+                    amount: responseData.amount,
+                    currency: "INR",
+                    name: 'HearMe',
+                    order_id: responseData.razorpayOrderId,
+                    handler: async function(response) {
+                        try {
+
+                            
+                            
+                            const resData = {
+                                razorpayOrderId: response.razorpay_order_id,
+                                paymentId: response.razorpay_payment_id,
+                            }
+
+                            const combinedData = { ...data, ...resData };
+
+                            const payment = await fetch('/user/checkout', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(combinedData)
+                            })
+
+                            if(payment.ok){
+                                
+                                const paymentData = payment.json()
+
+                                window.location.href = '/user/orderSuccess'
+                            }
+
+                        } catch (error) {
+                            console.log(`handler error ${error}`)
+                        }
+                    },
+                    prefill: {
+                        name: name,
+                        email: email,
+                        contact: phone
+                    },
+                    notes: {
+                        address: address.value
+                    },
+                    theme: {
+                        color: "#3399cc"
+                    },
+                    "modal": {
+                        "ondismiss": function () {
+                             window.location.href = '/user/checkout'
+                             }
+                            }
+
+                }
+                const rzp1 = new Razorpay(options);
+
+                rzp1.on('payment.failed', async function (response){
+                    
+                    const res = await fetch('/user/payment',{
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({...data, paymentStatus: 'Pending' })
+                    })
+
+                    if(res.ok){
+
+                        const data = await res.json()
+
+                        window.location.href = '/user/orderFailure'
+                    }
+
+
+                })
+
+                rzp1.open()
+
+            }else{
+
+
+                const data = await res.json()
+
+                window.location.href = '/user/orderSuccess'
+            }
+
+            
         }else{
 
             const error = await res.text()
@@ -456,13 +554,77 @@
 
     }
 
+    async function applyCoupon(){
+        const couponCode = document.getElementById('couponCode').value;
 
+        try {
 
-function showModal() {
-    const modalElement = document.getElementById('myModal');
-    const modal = new bootstrap.Modal(modalElement);
-    modal.show();
+            const res= await fetch('/user/applycoupon',{
+                method: 'POST',
+                headers: {
+                    'Content-Type':'application/json'
+                },
+                body: JSON.stringify({couponCode})
+            })
+
+            
+            if(!res.ok){
+                    const error = res.text()
+                    showError(error)
+                }
+
+            const couponData = await res.json()
+
+            updateTotal(couponData.totalPrice,couponData.discountAmount);
+            showCouponBadge(couponCode);
+
+            
+        } catch (error) {
+            console.log(`applycoupoun error ${error}`)
+        }
+    }
+
+    function updateTotal(total, discount) {
+    const totalElement = document.getElementById('totalPriceCheckout');
+    const discountElement = document.getElementById('discountAmount');
+    
+    if (totalElement && discountElement) {
+        totalElement.textContent = total.toFixed(2);
+        discountElement.textContent = discount.toFixed(2);
+    } else {
+        console.error('One or both elements not found:', totalElement, discountElement);
+    }
+
+    const balance = '<%= balance %>';
+
+    if (total <= balance) {
+        document.getElementById('pay-methodoption1').disabled = false;
+    } else {
+        document.getElementById('pay-methodoption1').disabled = true;
+    }
 }
+
+
+    function showCouponBadge(couponCode) {
+    const couponBadge = document.getElementById('couponBadge');
+    const appliedCouponCode = document.getElementById('appliedCouponCode');
+    couponBadge.style.display = 'block';
+    appliedCouponCode.innerText = couponCode;
+}
+
+function removeCoupon() {
+    document.getElementById('couponCode').value = '';
+    document.getElementById('couponBadge').style.display = 'none';
+    location.reload();
+}
+
+
+
+// function showModal() {
+//     const modalElement = document.getElementById('myModal');
+//     const modal = new bootstrap.Modal(modalElement);
+//     modal.show();
+// }
 
 
 

@@ -58,8 +58,6 @@ const addAddress = async (req,res)=>{
         user.address.push(address)
         await user.save();
 
-        res.status(200).json();
-
         req.flash('success','New Address Added')
         res.redirect('/user/profile')
 

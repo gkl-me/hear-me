@@ -1,0 +1,51 @@
+<%- include('nav') %>
+
+<style>
+
+    .rating-star i{
+        color: gold;
+        text-shadow: 0 0 1px #000;
+    }
+
+</style>
+
+<div class="container mx-auto mt-5">
+    <div class="text-center mb-5">
+        <h1>Wishlist</h1>
+    </div>
+    <div class="row wishlist-row">
+
+        <%- include('wishlistRow') %>
+
+    </div>
+
+</div>
+
+<script>
+
+async function updateWishlist(){
+    try {
+        
+        const res = await fetch('/user/updateWishlist',{
+            method:'POST',
+            headers:{
+                'Content-Type': 'application/json'
+            },
+        })
+
+        if(res.ok){
+            const html = await res.text();
+            document.querySelector('.wishlist-row').innerHTML = html;
+        }
+
+    } catch (error) {
+        console.log(`error in update wishlist fetch`)
+        showError(`wishlist update fetch`)
+    }
+}
+
+
+</script>
+
+
+<%- include('../admin/adminFooter') %>

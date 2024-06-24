@@ -2,7 +2,7 @@ const userSchema = require('../model/user.modal')
 
 async function isUser(req, res, next) {
     try {
-        if (req.session.user != null) {
+        if (req.session.user) {
             const user = await userSchema.findById(req.session.user);
 
             if (user) {
@@ -15,7 +15,7 @@ async function isUser(req, res, next) {
                 }
             } else {
                 req.session.user = '';
-                res.redirect('/user/login');
+                next()
             }
         } else {
             res.redirect('/user/login');

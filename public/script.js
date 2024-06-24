@@ -21,8 +21,8 @@ alertDelete.forEach((ele) => {
         event.preventDefault();
 
         Swal.fire({
-            title: 'Deactivate the category',
-            text: "Are you sure you want to deactivate the category?",
+            title: 'Are You want to delete',
+            text: "Are you sure you want to delete this?",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#10051F',
@@ -91,7 +91,7 @@ async function addToCart(productId,user){
                         showConfirmButton: false,
                         timer: 700,
                     }).then(() => {
-                        window.location.reload()
+                        // window.location.reload()
                     })
         
                     const cart = await res.json();
@@ -150,6 +150,11 @@ async function addToWishlist(productId,user,wishlistIcon){
                     wishlistIcon.classList.add('bi-heart')
                     // wishlistIcon.style.color = 'black'
                 }
+                
+                if(window.location.pathname === "/user/wishlist"){
+                    await updateWishlist();
+                }
+
             }else{
                 showError(`failed to update wishlist`)
             }
@@ -173,4 +178,7 @@ function showToast(message) {
     const toast = new bootstrap.Toast(toastElement);
     toast.show();
 }
+
+
+// update wishlist function 
 

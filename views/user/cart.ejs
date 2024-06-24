@@ -26,6 +26,12 @@
     text-decoration: underline;
 }
 
+.cart-img{
+    height: 200px;
+    width: 200px;
+}
+
+
 </style>
 
 <div class="container mt-5">
@@ -44,14 +50,14 @@
             <div class="card mb-3">
                 <div class="row g-0">
                     <div class="col-md-4">
-                        <img src="../../<%= product.productId.productImage[0]%>" class="img-fluid rounded-start" alt="Product Image">
+                        <img src="../../<%= product.productId.productImage[0]%>" class="cart-img img-fluid rounded-start" alt="Product Image">
                     </div>
-                    <div class="col-md-8">
+                    <div class="col-md-8 d-flex align-items-center">
                         <div class="card-body">
-                            <h5 class="card-title"><%= product.productId.productName %></h5>
-                            <div class="d-flex justify-content-between">
+                            <div class="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <p class="mb-0"><strong><%= product.price %></strong></p>
+                                    <h5 class="card-title"><%= product.productId.productName %></h5>
+                                    <p class="mb-0"><strong><%= product.productId.productPrice %></strong></p>
                                 </div>
                                 <div class="input-group quantity-counter">
                                     <button class="btn btn-outline-secondary btn-sm"  onclick="decrement(`<%= product.productId._id %>`)" >-</button>
@@ -59,12 +65,18 @@
                                     <button class="btn btn-outline-secondary btn-sm" onclick="increment(`<%= product.productId._id %>`)">+</button>
                                 </div>
                                 <div>
-                                    <p class="mb-0"><strong><i class="bi bi-currency-rupee"></i><%= product.price * product.quantity %></strong></p>
+                                    <p class="mb-0"><strong><i class="bi bi-currency-rupee"></i><%= product.productId.productPrice * product.quantity %></strong></p>
                                 </div>
-                            </div>
-                            <div class="d-flex justify-content-end mt-2">
+                    
                                 <button class="btn btn-outline-danger btn-sm me-2" onclick="removeFromCart(`<%= product.productId._id %>`)" ><i class="bi bi-trash3"></i></button>
-                                <button class="btn btn-outline-secondary btn-sm"><i class="bi bi-heart"></i></button>
+                            </div>
+                            <div class="mt-2">
+                                <% if(product.productId.productQuantity === 0){ %>
+                                    <!-- <div class="text-danger text-center" >Out of stock</div> -->
+                                    <div class="text-danger text-center">Out of Stock</div>
+                                <% }else if(product.productId.productQuantity <= 5 ) { %>
+                                    <div class="text-danger text-center" >Only <%= product.productId.productQuantity %> left</div>
+                                    <% } %>
                             </div>
                         </div>
                     </div>
@@ -72,8 +84,16 @@
             </div>
             <% }) %>
             <% } else { %>
-                <p>Your cart is empty</p>
-
+                <div class="container mb-5 ">
+                    <div class="card d-flex flex-column align-items-center p-3">
+                        <div class="image">
+                            <img src="../../public/assets/empty-cart.jpg" width="300" height="300"  alt="Empty Cart">
+                        </div>
+                        <h2>Your Cart is Empty</h2>
+                        <p>Add new products to your cart</p>
+                        <a href="/user/home" class="btn submit-btn" >Go home</a>
+                    </div>
+                </div>
                 <% } %>
 
         </div>
@@ -105,12 +125,11 @@
                 </div>
             <div class="d-flex justify-content-between my-3">
                 <a href="/user/home" class="btn ">← Continue Shopping</a>
-                <a href="/user/checkout" class="btn btn-success">Checkout</a>
+                <a href="/user/checkout" class="btn submit-btn-light">Checkout</a>
             </div>
                 </div>
     </div>
 </div>
-
 
 <script>
 
@@ -201,6 +220,10 @@
             console.log(`error from remove from cart fetch ${error}`)
         }
     }
+
+
+   
+
 
 </script>
 

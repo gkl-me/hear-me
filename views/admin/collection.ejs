@@ -38,9 +38,9 @@
                         <% } %>
                     </td>
                     <td>
-                        <a href="" id="edit-collection-modal" data-bs-toggle="modal" data-bs-target="#editCollection" data-name="<%=collection.collectionName%>" data-id="<%=collection.id %>"><i class="bi bi-pencil-square"></i></a>
-                        <a href="/admin/collectionstatus?id=<%= collection.id %>&status=<%=collection.isActive %>" ><i class="bi bi-x-circle"></i></a>
-                        <a href="/admin/deletecollection/<%= collection.id %>" class="sweet-alert-delete"><i class="bi bi-trash3"></i></a>
+                        <a class="atag" href="" id="edit-collection-modal" data-bs-toggle="modal" data-bs-target="#editCollection" data-name="<%=collection.collectionName%>" data-id="<%=collection.id %>"><i class="bi bi-pencil-square"></i></a>
+                        <a class="atag" href="/admin/collectionstatus?id=<%= collection.id %>&status=<%=collection.isActive %>" ><i class="bi bi-x-circle"></i></a>
+                        <!-- <a href="/admin/deletecollection/<%= collection.id %>" class="sweet-alert-delete"><i class="bi bi-trash3"></i></a> -->
                     </td>
                 </tr>
                 <% }) %>
@@ -60,7 +60,10 @@
             <div class="collection-container">
                 <h2 class="text-center mb-4 mt-2">Add Collection</h2>
                 <form class="form d-flex flex-column gap-3 pt-4" action="/admin/addcollection" method="post" id="addCollection-form">
-                    <input type="text" name="collectionName" id="addCollection-name"  class="form-control form-input" placeholder="Collection Name" required>
+                    <div class="form-group">
+                        <label for="addCollection-name">Collection Name</label>
+                        <input type="text" name="collectionName" id="addCollection-name"  class="form-control form-input" placeholder="Collection Name" required>
+                    </div>
                     <button type="submit" id="addCollection-button" class="btn submit-btn">+ Add Collection</button>
                 </form>
             </div>
@@ -78,7 +81,10 @@
                 <h2 class="text-center mb-4 mt-2">Collection</h2>
                 <form class="form d-flex flex-column gap-3 pt-4" action="/admin/editcollection" id="editCollection-form" method="post">
                     <input type="hidden" name="collectionId" id="editCollectionId">
-                    <input type="text" name="collectionName" id="editCollectionName" class="form-control form-input" placeholder="Collection Name" required>
+                    <div class="form-group">
+                        <label for="editCollectionName">Collection Name</label>
+                        <input type="text" name="collectionName" id="editCollectionName" class="form-control form-input" placeholder="Collection Name" required>
+                    </div>
                     <button type="submit" class="btn submit-btn edit-alert">Save Changes</button>
                 </form>
             </div>

@@ -4,7 +4,11 @@
     .card {
         border: 1px solid #ddd;
         margin: 10px;
+        transition: transform 0.2s;
     }
+    .card:hover {
+            transform: translateY(-5px);
+        }
     .card-body {
         background-color: #D5D2FF;
         border-radius: 5px;
@@ -38,12 +42,9 @@
     .list-inline-item {
         margin-right: 0.5rem;
     }
-    .container {
-        padding: 20px;
-    }
     .nav-pills .nav-link {
         border: 1px solid #D5D2FF;
-        background-color: #F0F0F0;
+        background-color: #ffffff;
         color: #000;
     }
     .nav-pills .nav-link.active {
@@ -55,13 +56,16 @@
         padding: 20px;
         border: 4px solid #D5D2FF;
         border-radius: 5px;
+    
     }
+
+
 </style>
 
 <div class="container my-5">
     <div class="row">
-        <div class="col-xl-4">
-            <ul class="nav nav-pills flex-column" id="order-menu" role="tablist">
+        <div class="d-flex">
+            <ul class="nav nav-pills flex-row gap-3" id="order-menu" role="tablist">
                 <li class="nav-item" role="presentation">
                     <a class="nav-link active" id="order-status-tab" data-bs-toggle="pill" href="#order-status" role="tab" aria-controls="order-status" aria-selected="true">Orders status</a>
                 </li>
@@ -71,13 +75,16 @@
                 <li class="nav-item" role="presentation">
                     <a class="nav-link" id="canceled-order-tab" data-bs-toggle="pill" href="#canceled-order" role="tab" aria-controls="canceled-order" aria-selected="false">Canceled Orders</a>
                 </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link" id="returned-order-tab" data-bs-toggle="pill" href="#returned-order" role="tab" aria-controls="returned-order" aria-selected="false">Returned Orders</a>
+                </li>
             </ul>
         </div>
         <div class="col-xl-8">
             <div class="tab-content" id="order-content">
                 <div class="tab-pane fade show active" id="order-status" role="tabpanel" aria-labelledby="order-status-tab">
-                    <% if(order.length > 0 && order.some(o => o.status !== 'delivered' && o.status !== 'cancelled')) { %>
-                        <% order.filter(o => o.status !== 'delivered' && o.status !== 'cancelled').forEach((order) => { %>
+                    <% if(order.length > 0 && order.some(o => o.status === 'processing' || o.status === 'shipped' )) { %>
+                        <% order.filter(o => o.status === 'processing' || o.status === 'shipped').forEach((order) => { %>
                         <div class="card border shadow-none mb-4">
                             <div class="card-body">
                                 <div class="product-list">
@@ -88,7 +95,7 @@
                                         </div>
                                         <div class="flex-grow-1 align-self-center overflow-hidden">
                                             <div class="mb-3">
-                                                <h5 class="text-truncate font-size-18"><a href="#" class="text-dark"><%= product.productId.productName %></a></h5>
+                                                <h5 class="text-truncate font-size-18"><a href='/user/product/<%= product.productId._id %>' class="text-dark"><%= product.productId.productName %></a></h5>
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-4">
@@ -126,12 +133,15 @@
                                             <div class="mtop-2">
                                                 <p class="text-muted mbottom-2">Total Price</p>
                                                 <h5><i class="bi bi-currency-rupee"></i><%= order.totalPrice %></h5>
+                                                <% if(order.discountAmount) { %>
+                                                <p class="text-muted mbottom-2"><small>Coupon Applied: <i class="bi bi-currency-rupee"></i><%= order.discountAmount %></small></p>
+                                                <% } %>
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="mtop-2">
                                                 <p class="text-muted mbottom-2">Action</p>
-                                                <h5><a class="btn submit-btn" id="cancelOrder" data-bs-toggle="modal" data-bs-target="#cancelOrderModal" data-id="<%= order.id %>" >Cancel Order</a></h5>
+                                                <h5><a class="btn submit-btn" id="cancelOrder" data-bs-toggle="modal" data-bs-target="#cancelOrderModal" data-id="<%= order.id %>">Cancel Order</a></h5>
                                             </div>
                                         </div>
                                     </div>
@@ -141,13 +151,14 @@
                         <% }) %>
                     <% } else { %>
                         <div class="card border shadow-none">
-                            <div class="card-body">
+                            <div class="card-body empty-body">
                                 <h5 class="card-title">Order</h5>
                                 <p class="card-text">You don't have any current orders</p>
                             </div>
                         </div>
                     <% } %>
                 </div>
+                
                 <div class="tab-pane fade" id="order-history" role="tabpanel" aria-labelledby="order-history-tab">
                     <% if(order.length > 0 && order.some(o => o.status === 'delivered')) { %>
                         <% order.filter(o => o.status === 'delivered').forEach((order) => { %>
@@ -161,7 +172,7 @@
                                         </div>
                                         <div class="flex-grow-1 align-self-center overflow-hidden">
                                             <div class="mb-3">
-                                                <h5 class="text-truncate font-size-18"><a href="#" class="text-dark"><%= product.productId.productName %></a></h5>
+                                                <h5 class="text-truncate font-size-18"><a href='/user/product/<%= product.productId._id %>' class="text-dark"><%= product.productId.productName %></a></h5>
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-4">
@@ -199,12 +210,15 @@
                                             <div class="mtop-2">
                                                 <p class="text-muted mbottom-2">Total Price</p>
                                                 <h5><i class="bi bi-currency-rupee"></i><%= order.totalPrice %></h5>
+                                                <% if(order.discountAmount) { %>
+                                                    <p class="text-muted mbottom-2"><small>Coupon Applied: <i class="bi bi-currency-rupee"></i><%= order.discountAmount %></small></p>
+                                                    <% } %>
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="mtop-2">
                                                 <p class="text-muted mbottom-2">Action</p>
-                                                <h5><a href="" class="btn submit-btn">Return Order</a></h5>
+                                                <h5><a href="/user/returnOrder/<%= order.id %>" class="btn submit-btn">Return Order</a></h5>
                                             </div>
                                         </div>
                                     </div>
@@ -234,7 +248,7 @@
                                         </div>
                                         <div class="flex-grow-1 align-self-center overflow-hidden">
                                             <div class="mb-3">
-                                                <h5 class="text-truncate font-size-18"><a href="#" class="text-dark"><%= product.productId.productName %></a></h5>
+                                                <h5 class="text-truncate font-size-18"><a href='/user/product/<%= product.productId._id %>' class="text-dark"><%= product.productId.productName %></a></h5>
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-4">
@@ -272,6 +286,9 @@
                                             <div class="mtop-2">
                                                 <p class="text-muted mbottom-2">Total Price</p>
                                                 <h5><i class="bi bi-currency-rupee"></i><%= order.totalPrice %></h5>
+                                                <% if(order.discountAmount) { %>
+                                                    <p class="text-muted mbottom-2"><small>Coupon Applied: <i class="bi bi-currency-rupee"></i><%= order.discountAmount %></small></p>
+                                                    <% } %>
                                             </div>
                                         </div>
                                     </div>
@@ -288,8 +305,138 @@
                         </div>
                     <% } %>
                 </div>
+                <div class="tab-pane fade" id="returned-order" role="tabpanel" aria-labelledby="returned-order-tab">
+                    <% if(order.length > 0 && order.some(o => o.status === 'returned')) { %>
+                        <% order.filter(o => o.status === 'returned').forEach((order) => { %>
+                        <div class="card border shadow-none mb-4">
+                            <div class="card-body">
+                                <div class="product-list">
+                                    <% order.products.forEach((product) => { %>
+                                    <div class="product-item d-flex align-items-start border-bottom pbottom-3 mb-3">
+                                        <div class="me-3">
+                                            <img src="../../<%= product.productId.productImage[0]%>" alt="" class="avatar-lg rounded">
+                                        </div>
+                                        <div class="flex-grow-1 align-self-center overflow-hidden">
+                                            <div class="mb-3">
+                                                <h5 class="text-truncate font-size-18"><a href='/user/product/<%= product.productId._id %>' class="text-dark"><%= product.productId.productName %></a></h5>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <div class="mtop-2">
+                                                        <p class="text-muted mbottom-2">Price</p>
+                                                        <h5 class="mb-0 mtop-2"><i class="bi bi-currency-rupee"></i><%= product.price %></h5>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="mtop-2">
+                                                        <p class="text-muted mbottom-2">Quantity</p>
+                                                        <h5><%= product.quantity %></h5>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="mtop-2">
+                                                        <p class="text-muted mbottom-2">Total</p>
+                                                        <h5><i class="bi bi-currency-rupee"></i><%= product.price * product.quantity %></h5>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <% }) %>
+                                </div>
+                                <div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="mtop-2">
+                                                <p class="text-muted mbottom-2">Status</p>
+                                                <h5><%= order.status %></h5>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mtop-2">
+                                                <p class="text-muted mbottom-2">Total Price</p>
+                                                <h5><i class="bi bi-currency-rupee"></i><%= order.totalPrice %></h5>
+                                                <% if(order.discountAmount) { %>
+                                                    <p class="text-muted mbottom-2"><small>Coupon Applied: <i class="bi bi-currency-rupee"></i><%= order.discountAmount %></small></p>
+                                                    <% } %>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mtop-2">
+                                                <p class="text-muted mbottom-2">Action</p>
+                                                <h5><a href="" class="btn submit-btn">Add Review</a></h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <% }) %>
+                    <% } else { %>
+                        <div class="card border shadow-none">
+                            <div class="card-body">
+                                <h5 class="card-title">Returned Orders</h5>
+                                <p class="card-text">Here you can view your returned orders.</p>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
             </div>
         </div>
+        <div class="col-xl-4 payment-pending">
+            <h1>Pending Payment</h1>
+            <% if(order.length > 0 && order.some(o => o.status === 'pending')) { %>
+                <% order.filter(o => o.status === 'pending').forEach((order) => { %>
+                <div class="card border shadow-none mb-4">
+                    <div class="card-body">
+                        <div class="product-list">
+                            <% order.products.forEach((product) => { %>
+                            <div class="product-item d-flex align-items-start border-bottom pbottom-3 mb-3">
+                                <div class="me-3">
+                                    <img src="../../<%= product.productId.productImage[0]%>" alt="" class="avatar-lg rounded">
+                                </div>
+                                <div class="flex-grow-1 align-self-center overflow-hidden">
+                                    <div class="mb-3">
+                                        <h5 class="text-truncate font-size-18"><a href='/user/product/<%= product.productId._id %>' class="text-dark"><%= product.productId.productName %></a></h5>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            <% }) %>
+                            <div class="row">
+                                
+                                <div class="d-flex justify-content-between">
+                                    <div class="mtop-2">
+                                        <p class="text-muted mbottom-2">Total Price</p>
+                                        <h5><i class="bi bi-currency-rupee"></i><%= order.totalPrice %></h5>
+                                    </div>
+                                    <div class="mtop-2">
+                                        <p class="text-muted mbottom-2">Action</p>
+                                        <div class="d-flex">
+                                           <div>
+                                            <a href="/user/proceedPayment/<%= order.id %>" class="btn submit-btn">Pay Now</a>
+                                           </div>
+                                           <div>
+                                            <a href="/user/removeOrder/<%= order.id %>" class="btn submit-btn">Remove</a>
+                                           </div>
+                                        </div>
+                                    </div>
+                                </div>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+                <% }) %>
+            <% } else { %>
+                <div class="card border shadow-none">
+                    <div class="card-body empty-body">
+                        <h5 class="card-title">Payment Pending</h5>
+                        <p class="card-text">You don't have any pending payments</p>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+
     </div>
 </div>
 

@@ -6,7 +6,7 @@ const collectionController = require('../controller/adminController/collectionCo
 const productController = require('../controller/adminController/productController')
 const userContoller = require('../controller/adminController/userController')
 const orderController = require('../controller/adminController/orderController')
-
+const couponController = require('../controller/adminController/couponController')
 
 //home routes
 
@@ -65,6 +65,14 @@ admin.get('/userstatus',isAdmin,userContoller.status)
 admin.get('/orders',isAdmin,orderController.renderOrder)
 admin.get('/orders/edit/:id',isAdmin,orderController.editOrder)
 admin.post('/orders/update/:id',isAdmin,orderController.updateStatus)
+
+//coupons
+
+admin.get('/coupons',isAdmin,couponController.renderCouponPage)
+admin.post('/addCoupon',isAdmin,couponController.addCoupon)
+admin.post('/editCoupon',isAdmin,couponController.editCoupon)
+admin.get('/deleteCoupon/:id',isAdmin,couponController.deleteCoupon)
+admin.get('/couponStatus',isAdmin,couponController.status)
 
 
 module.exports=admin

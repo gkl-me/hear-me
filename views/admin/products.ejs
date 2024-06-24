@@ -38,13 +38,13 @@
                         <% if(product.isActive) { %>
                             <span class="status actived">Active</span>
                         <% }else{ %>
-                            <span class="status blocked">Blocked</span>
+                            <span class="status block">Blocked</span>
                         <% } %>
                     </td>
                     <td>
-                        <a href="/admin/editproduct/<%= product.id %>"><i class="bi bi-pencil-square"></i></a>
-                        <a href="/admin/productstatus?id=<%= product.id %>&&status=<%= product.isActive%>"><i class="bi bi-x-circle"></i></a>
-                        <a href="/admin/products/<%= product.id %>"class="sweet-alert-delete"><i class="bi bi-trash3"></i></a>
+                        <a class="atag" href="/admin/editproduct/<%= product.id %>"><i class="bi bi-pencil-square"></i></a>
+                        <a class="atag" href="/admin/productstatus?id=<%= product.id %>&&status=<%= product.isActive%>"><i class="bi bi-x-circle"></i></a>
+                        <a class="atag" href="/admin/products/<%= product.id %>"class="sweet-alert-delete"><i class="bi bi-trash3"></i></a>
                     </td>
                 </tr>
                 <% }) %>

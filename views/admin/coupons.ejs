@@ -1,0 +1,150 @@
+<%- include('adminNav') %>
+
+<div class="container mb-5">
+    <div class="search-container d-flex justify-content-between">
+        <div class="d-flex justify-content-between align-items-center gap-2">
+            <h2><%= title %></h2>
+        </div>
+        <button type="button" class="btn submit-btn" data-bs-toggle="modal" data-bs-target="#addCoupon">+ Add Coupon</button>
+    </div>
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">SL.No</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Discount</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% coupons.forEach((coupon, index) => { %>
+                <tr>
+                    <td><%= index + 1 %></td>
+                    <td><%= coupon.name %></td>
+                    <td><%= coupon.discount %></td>
+                    <td>
+                        <% if(coupon.status) { %>
+                            <span class="status actived">Active</span>
+                        <% } else { %>
+                            <span class="status disable">Disabled</span>
+                        <% } %>
+                    </td>
+                    <td>
+                        <a class="atag" href="" id="edit-coupon-modal" data-bs-toggle="modal" data-bs-target="#editCoupon" data-name="<%= coupon.name %>" data-discount="<%= coupon.discount %>" data-id="<%= coupon.id %>"><i class="bi bi-pencil-square"></i></a>
+                        <a class="atag" href="/admin/couponStatus?id=<%= coupon.id %>&status=<%= coupon.status %>"><i class="bi bi-x-circle"></i></a>
+                        <a href="/admin/deleteCoupon/<%= coupon.id %>" class="sweet-alert-delete"><i class="bi bi-trash3"></i></a>
+                    </td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- add coupon modal -->
+<div class="modal fade" id="addCoupon">
+    <div class="modal-dialog">
+        <div class="modal-content collection-modal">
+            <div class="collection-container">
+                <h2 class="text-center mb-4 mt-2">Add Coupon</h2>
+                <form class="form d-flex flex-column gap-3 pt-4" action="/admin/addCoupon" method="post" id="addCoupon-form">
+                    <div class="form-group">
+                        <label for="name">Coupon Name</label>
+                        <input type="text" name="name" id="name" class="form-control form-input" placeholder="Coupon Name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="discount">Discount (%)</label>
+                        <input type="text" name="discount" id="discount" class="form-control form-input" placeholder="Discount" required>
+                    </div>
+                    <button type="submit" id="addCoupon-button" class="btn submit-btn">+ Add Coupon</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- edit coupon modal -->
+<div class="modal fade" id="editCoupon">
+    <div class="modal-dialog">
+        <div class="modal-content collection-modal">
+            <div class="collection-container">
+                <h2 class="text-center mb-4 mt-2">Edit Coupon</h2>
+                <form class="form d-flex flex-column gap-3 pt-4" action="/admin/editCoupon" id="editCoupon-form" method="post">
+                    <input type="hidden" name="couponId" id="editCouponId">
+                    <div class="form-group">
+                        <label for="editCouponName">Coupon Name</label>
+                        <input type="text" name="name" id="editCouponName" class="form-control form-input" placeholder="Coupon Name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editDiscount">Discount (%)</label>
+                        <input type="text" name="discount" id="editDiscount" class="form-control form-input" placeholder="Discount" required>
+                    </div>
+                    <button type="submit" class="btn submit-btn edit-alert">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('addCoupon-form').addEventListener('submit', (e) => {
+        const name = document.getElementById('name').value;
+        const discount = document.getElementById('discount').value;
+
+        if (name.trim() === "") {
+            e.preventDefault();
+            Swal.fire({
+                title: "Invalid Input",
+                text: "Name cannot be empty",
+                icon: "error"
+            });
+        }
+        if (discount.trim() === "" || isNaN(discount) || discount <= 0 || discount > 100) {
+            e.preventDefault();
+            Swal.fire({
+                title: "Invalid Input",
+                text: "Discount must be a number between 1 and 100",
+                icon: "error"
+            });
+        }
+    });
+
+    document.getElementById('editCoupon-form').addEventListener('submit', (e) => {
+        const name = document.getElementById('editCouponName').value;
+        const discount = document.getElementById('editDiscount').value;
+
+        if (name.trim() === "") {
+            e.preventDefault();
+            Swal.fire({
+                title: "Invalid Input",
+                text: "Name cannot be empty",
+                icon: "error"
+            });
+        }
+        if (discount.trim() === "" || isNaN(discount) || discount <= 0 || discount > 100) {
+            e.preventDefault();
+            Swal.fire({
+                title: "Invalid Input",
+                text: "Discount must be a number between 1 and 100",
+                icon: "error"
+            });
+        }
+    });
+
+    const editCouponButtons = document.querySelectorAll('#edit-coupon-modal');
+
+    editCouponButtons.forEach((button) => {
+        button.addEventListener('click', function () {
+            const name = this.getAttribute('data-name');
+            const discount = this.getAttribute('data-discount');
+            const id = this.getAttribute('data-id');
+            document.getElementById('editCouponName').value = name;
+            document.getElementById('editDiscount').value = discount;
+            document.getElementById('editCouponId').value = id;
+        });
+    });
+</script>
+
+<%- include('adminFooter') %>

@@ -43,7 +43,7 @@ const multer = upload.array('image',3);
 const addproductPost = async (req,res) => {
     try {
 
-        const uploadDir = path.join(__dirname, '..','..', 'uploads'); 
+        // const uploadDir = path.join(__dirname, '..','..', 'uploads'); 
 
         const imgArray = []
 

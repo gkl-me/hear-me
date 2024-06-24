@@ -8,7 +8,7 @@
         </div>
         <div class="d-flex gap-2 mt-4">
             <% product.productImage.forEach((img,index)=>{ %>
-           <a>
+           <a class="atag">
             <div class="product-image-min"  onclick="changeImage(`<%=img.replace(/\\/g, '\\\\')%>`)">
                 <img src="../../<%= img %>" alt="">
             </div>

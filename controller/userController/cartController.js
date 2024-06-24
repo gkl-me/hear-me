@@ -44,7 +44,7 @@ const addToCart = async (req,res) => {
         if(quantity > product.productQuantity){
             return res.status(404).send(`You can Only add ${max} products`)
         }
-
+        // console.log(typeof productId)
         cart.products.push({productId,quantity,price: product.productPrice})
     }
 
@@ -174,6 +174,19 @@ const removeFromCart = async (req,res)=>{
 const renderCart = async (req,res)=>{
     const userId = req.session.user
     const cart = await cartSchema.findOne({userId}).populate('products.productId')
+
+    for(product of cart.products){
+        let currentProduct = await productSchema.findById(product.productId)
+
+        if(currentProduct.productQuantity <= product.quantity){
+            product.quantity = currentProduct.productQuantity;
+
+        }
+
+        product.price = currentProduct.productPrice;
+        
+        await cart.save();
+    }
 
     res.render('user/cart',{title: 'Cart',user:req.session.user,cart})
 }
