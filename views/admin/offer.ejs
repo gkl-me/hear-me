@@ -1,0 +1,160 @@
+<%- include('adminNav') %>
+
+<div class="container mb-5">
+    <div class="search-container d-flex justify-content-between">
+        <div class="d-flex justify-content-between align-items-center gap-2">
+            <h2><%= title %></h2>
+        </div>
+        <button type="button" class="btn submit-btn" data-bs-toggle="modal"  data-bs-target="#addCoupon">+ Add Offer</button>
+    </div>
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">SL.No</th>
+                    <th scope="col">Offer Type</th>
+                    <th scope="col">Offer For</th>
+                    <th scope="col">Discount Percent</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% offers.forEach((offer, index) => { %>
+                <tr>
+                    <td><%= index + 1 %></td>
+                    <td><%= offer.offerType %></td>
+                    <td><%= offer.offerType === 'product' ? offer.referenceId.productName : offer.referenceId.collectionName  %></td>
+                    <td><%= offer.discountPercent %></td>
+                    <td>
+                        <% if(offer.isActive) { %>
+                            <span class="status actived">Active</span>
+                        <% } else { %>
+                            <span class="status disable">Disabled</span>
+                        <% } %>
+                    </td>
+                    <td>
+                        <a class="atag" href="" id="edit-coupon-modal" data-bs-toggle="modal" data-bs-target="#editCoupon" data-type="<%= offer.offerType %>" data-reference="<%= offer.offerType === 'product' ? offer.referenceId.productName : offer.referenceId.collectionName %>" data-discount="<%= offer.discountPercent %>" data-id="<%= offer._id %>"><i class="bi bi-pencil-square"></i></a>
+                        <a class="atag" href="/admin/offerStatus?id=<%= offer._id %>&status=<%= offer.isActive %>"><i class="bi bi-x-circle"></i></a>
+                        <a href="/admin/deleteOffer/<%= offer._id %>" class="sweet-alert-delete"><i class="bi bi-trash3"></i></a>
+                    </td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- add coupon modal -->
+<div class="modal fade" id="addCoupon">
+    <div class="modal-dialog">
+        <div class="modal-content collection-modal">
+            <div class="collection-container">
+                <h2 class="text-center mb-4 mt-2">Add Offer</h2>
+                <form class="form d-flex flex-column gap-3 pt-4" action="/admin/addOffer" method="post" id="addCoupon-form">
+                    <div class="form-group">
+                        <label for="offerType">Offer Type</label>
+                        <select name="offerType" id="offerType" class="form-control form-input" required>
+                            <option value="">Select Offer Type</option>
+                            <option value="product">Product</option>
+                            <option value="collection">Collection</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="offerFor">Offer For</label>
+                        <select name="referenceId" id="offerFor" class="form-control form-input" required>
+                            <option value="">Select Offer Type</option>
+                            <!-- Options will be populated based on offerType selection -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="discount">Discount (%)</label>
+                        <input type="text" name="discountPercent" id="discount" class="form-control form-input" placeholder="Discount" required>
+                    </div>
+                    <button type="submit" id="addCoupon-button" class="btn submit-btn">+ Add Offer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- edit offer modal -->
+<div class="modal fade" id="editCoupon">
+    <div class="modal-dialog">
+        <div class="modal-content collection-modal">
+            <div class="collection-container">
+                <h2 class="text-center mb-4 mt-2">Edit Offer</h2>
+                <form class="form d-flex flex-column gap-3 pt-4" action="/admin/editOffer" method="post" id="editCoupon-form">
+                    <input type="hidden" name="offerId" id="editCouponId">
+                    <div class="form-group">
+                        <label for="editOfferType">Offer Type</label>
+                        <input name="offerType" id="editOfferType" class="form-control form-input" disabled>
+                           
+                    </div>
+                    <div class="form-group">
+                        <label for="editOfferFor">Offer For</label>
+                        <input name="referenceId" id="editOfferFor" class="form-control form-input" disabled>                        
+                    </div>
+                    <div class="form-group">
+                        <label for="editDiscount">Discount (%)</label>
+                        <input type="text" name="discountPercent" id="editDiscount" class="form-control form-input" placeholder="Discount" required>
+                    </div>
+                    <button type="submit" class="btn submit-btn">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+const products = <%- JSON.stringify(products) %>
+const collections = <%- JSON.stringify(collections) %>
+
+
+document.getElementById('offerType').addEventListener('change', function () {
+    const offerType = this.value;
+    const offerForSelect = document.getElementById('offerFor');
+    offerForSelect.innerHTML = ''; // Clear existing options
+
+    if (offerType === 'product') {
+        products.forEach(product => {
+            const opt = document.createElement('option');
+            opt.value = product._id;
+            opt.innerHTML = product.productName;
+            offerForSelect.appendChild(opt);
+        });
+    } else if (offerType === 'collection') {
+        collections.forEach(collection => {
+            const opt = document.createElement('option');
+            opt.value = collection._id;
+            opt.innerHTML = collection.collectionName;
+            offerForSelect.appendChild(opt);
+        });
+    }
+});
+
+const editCouponButtons = document.querySelectorAll('#edit-coupon-modal');
+
+editCouponButtons.forEach((button) => {
+    button.addEventListener('click', function () {
+        const type = this.getAttribute('data-type');
+        const reference = this.getAttribute('data-reference');
+        const discount = this.getAttribute('data-discount');
+        const id = this.getAttribute('data-id');
+
+        document.getElementById('editOfferType').value = type;
+        document.getElementById('editCouponId').value = id;
+
+        const offerFor = document.getElementById('editOfferFor').value = reference
+
+        document.getElementById('editDiscount').value = discount;
+    });
+});
+    
+
+</script>
+
+<%- include('adminFooter') %>

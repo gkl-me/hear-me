@@ -1,6 +1,8 @@
 const couponSchema = require('../../model/coupon.modal')
 const voucherCode = require('voucher-code-generator')
 
+
+// coupon page render admin side
 const renderCouponPage = async (req,res)=> {
 
     try {
@@ -15,13 +17,14 @@ const renderCouponPage = async (req,res)=> {
 
 }
 
-
+// coupon add in admin
 const addCoupon = async (req,res)=>{
 
     try {
         
         let { name,discount,expiryDate, } = req.body
 
+        // generates a coupon code
         name = name.trim().toUpperCase();
         const code = voucherCode.generate({
             length: 9,
@@ -29,8 +32,8 @@ const addCoupon = async (req,res)=>{
             charset: "alphanumeric"
         })
 
-        const coupon = couponSchema.findOne({name})
-        if(coupon === null){
+        const coupon = couponSchema.findOne({name:name})
+        if(coupon){
             req.flash('error',"Coupon already exists")
             return res.redirect('/admin/coupons')
         }

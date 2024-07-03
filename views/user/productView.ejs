@@ -1,10 +1,20 @@
 <%- include('nav') %>
 
+<style>
+    .rating-star i{
+    color: gold;
+    text-shadow: 0 0 1px #000;
+}
+</style>
+
 
 <div class="product-view">
     <div class="product-image-container">
         <div class="main-image">
             <img id="image-view" src="../../<%= product.productImage[0]%>" alt="">
+            <% if(product.discount) {%>
+                <span class="discount-tag-badge"><%= product.discount%>% OFF</span>
+                <% } %>
         </div>
         <div class="d-flex gap-2 mt-4">
             <% product.productImage.forEach((img,index)=>{ %>
@@ -24,10 +34,35 @@
                     <span class="text-success fs-4">In Stock</span>
                     <% } else{ %>
                         <span class="text-danger fs-4">Stock Left <%= product.productQuantity %> </span> 
-                   <% } %></h1>
-            <h3><i class="bi bi-currency-rupee"></i><%= product.productPrice %></h3>
-            <a onclick="addToCart(`<%= product.id %>`,'<%= user %>')" class="btn submit-btn">Buy Now</a>
-            <a onclick="addToCart(`<%= product.id %>`,'<%= user %>')" class="btn submit-btn-light">
+                   <% } %>
+
+                   <div class="rating-star d-flex" >
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star"></i><h5 >(30)</h5>
+                </div>
+            </h1>
+            <h3>
+                <% if (product.discount && product.discountMrp < product.productPrice) { %>
+                <div class="d-flex gap-3 align-items-center" >
+                    <span class="text-muted text-decoration-line-through">
+                        <i class="bi bi-currency-rupee"></i><%= product.productPrice %>
+                    </span>
+                    <span>
+                        <i class="bi bi-currency-rupee"></i><%= product.discountMrp %>
+                    </span>
+                    <h5 class="text-danger">-(<%= product.discount %>% off)</h5>
+                </div>
+            <% }else{ %>
+            <span><i class="bi bi-currency-rupee"></i><%= product.productPrice %></span>
+            <% } %>
+        </h3>
+
+
+            <a onclick="addToCart(`<%= product._id %>`,'<%= user %>')" class="btn submit-btn">Buy Now</a>
+            <a onclick="addToCart(`<%= product._id %>`,'<%= user %>')" class="btn submit-btn-light">
                 <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="#10051F" class="bi bi-cart-fill" viewBox="0 0 16 16">
                     <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>
                 </svg>Add to Cart

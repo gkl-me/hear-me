@@ -1,15 +1,247 @@
 <%- include('layout') %>
 <%- include('adminNav') %>
 
-<div class="container-home ">
-    <div class="d-flex justify-content-around">
-        <div class="bg-light">Hello</div>
-        <div class="bg-light">Hello</div>
-        <div class="bg-light">Hello</div>
-        <div class="bg-light">Hello</div>
+<style>
+    .stat-item {
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+    .sales-error {
+            color: red;
+            display: none;
+        }
+</style>
+<div class="container mt-4">
+    <div class="row g-4">
+        <div class="col-md-3">
+            <div class="stat-item">
+                <p>Revenue</p>
+                <h2><i class="bi bi-currency-rupee"></i><%= orderTotalPrice[0].totalPrice.toFixed(2) %></h2>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-item">
+                <p>Orders</p>
+                <h2><%= orderCount %></h2>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-item">
+                <p>Products Sold</p>
+                <h2><%= orderSummary[0].totalProductQuantity %></h2>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-item">
+                <p>Total Discount</p>
+                <h2><i class="bi bi-currency-rupee"></i><%= (orderSummary[0].totalCouponDiscount + orderSummary[0].totalDiscountedPrice).toFixed(2) %></h2>
+            </div>
+        </div>
     </div>
-</div>
 
+    <div class="sales-report mt-4 mb-5 p-4 bg-white rounded shadow-sm">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex justify-content-between gap-3 align-items-center">
+                <h1>Sales Summary</h1>
+                <div>
+                    <select class="form-select mb-2" id="time-frame">
+                        <option value="">Select</option>
+                        <option value="today">Today</option>
+                        <option value="this-week">This Week</option>
+                        <option value="this-month">Month</option>
+                        <option value="this-year">Year</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                    <span class="sales-error" id="time-frame-error">Please select a time frame.</span>
+                </div>
+                <div>
+                    <select class="form-select mb-2" id="year-select" style="display: none;">
+                        <option value="">Select Year</option>
+                    </select>
+                    <span class="sales-error" id="year-select-error">Please select a year.</span>
+                </div>
+                <div>
+                    <select class="form-select mb-2" id="month-select" style="display: none;">
+                        <option value="">Select Month</option>
+                    </select>
+                    <span class="sales-error" id="month-select-error">Please select a month.</span>
+                </div>
+                <div>
+                    <select class="form-select mb-2" id="report-type">
+                        <option value="">Type</option>
+                        <option value="excel">Excel</option>
+                        <option value="pdf">Pdf</option>
+                    </select>
+                    <span class="sales-error" id="report-type-error">Please select a report type.</span>
+                </div>
+                <div>
+                    <input type="date" class="form-control mb-2" id="start-date" style="display: none;">
+                    <input type="date" class="form-control mb-2" id="end-date" style="display: none;">
+                    <span class="sales-error" id="date-error">Please select start and end dates.</span>
+                </div>
+            </div>
+            <div>
+                <button type="button" class="btn btn-primary" id="download-btn">Download</button>
+            </div>
+        </div>
+    </div>
+
+    <%- include('salesChart') %>
+
+    <%- include('bestSeller') %>
+
+</div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const yearSelect = document.getElementById('year-select');
+            const monthSelect = document.getElementById('month-select');
+            const startDate = document.getElementById('start-date')
+            const endDate = document.getElementById('end-date')
+            const currentYear = new Date().getFullYear();
+            const currentMonth = new Date().getMonth();
+            
+            // Populate year select options from 2024 to current year
+            for (let year = 2024; year <= currentYear; year++) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.text = year;
+                yearSelect.appendChild(option);
+            }
+
+            // Function to populate month select options
+            function populateMonthOptions(year) {
+                monthSelect.innerHTML = '<option value="">Select</option>'; // Reset month options
+                const startMonth = (year == 2024) ? 5 : 0; // June (5) is the start month for 2024
+                const endMonth = (year == currentYear) ? currentMonth : 11; // December (11) is the last month
+
+                const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                for (let month = startMonth; month <= endMonth; month++) {
+                    const option = document.createElement('option');
+                    option.value = month;
+                    option.text = monthNames[month];
+                    monthSelect.appendChild(option);
+                }
+            }
+
+            // Populate months when the year changes
+            yearSelect.addEventListener('change', function() {
+                populateMonthOptions(this.value);
+            });
+
+            const reportType = document.getElementById('report-type').addEventListener('change',()=>{
+            document.getElementById('report-type-error').style.display = 'none';
+
+            })
+            document.getElementById('time-frame').addEventListener('change', function() {
+                document.getElementById('year-select').value = ''
+                document.getElementById('month-select').value = ''
+                document.getElementById('report-type').value = ''
+                document.getElementById('start-date').value = ''
+                document.getElementById('end-date').value = ''
+
+                document.getElementById('time-frame-error').style.display = 'none';
+                document.getElementById('year-select-error').style.display = 'none';
+                document.getElementById('month-select-error').style.display = 'none';
+                document.getElementById('report-type-error').style.display = 'none';
+
+
+                const timeFrame = this.value;
+                yearSelect.style.display = 'none';
+                monthSelect.style.display = 'none';
+                startDate.style.display = 'none';
+                endDate.style.display = 'none';
+
+                if (timeFrame === 'this-year' || timeFrame === 'this-month') {
+                    yearSelect.style.display = 'block';
+                }
+                if (timeFrame === 'this-month') {
+                    monthSelect.style.display = 'block';
+                    populateMonthOptions(yearSelect.value);
+                }
+                if (timeFrame === 'custom') {
+                    startDate.style.display = 'block';
+                    endDate.style.display = 'block';
+                }
+            });
+
+            startDate.addEventListener('input',()=>{
+                endDate.min = startDate.value;
+            })
+
+            document.getElementById('download-btn').addEventListener('click', function() {
+                const timeFrame = document.getElementById('time-frame').value;
+                const year = document.getElementById('year-select').value;
+                const month = document.getElementById('month-select').value;
+                const reportType = document.getElementById('report-type').value;
+                const startDate = document.getElementById('start-date').value;
+                const endDate = document.getElementById('end-date').value;
+
+                // Validation
+                let valid = true;
+
+                if (!timeFrame) {
+                    document.getElementById('time-frame-error').style.display = 'block';
+                    valid = false;
+                } else {
+                    document.getElementById('time-frame-error').style.display = 'none';
+                }
+
+                if ((timeFrame === 'this-year' || timeFrame === 'this-month') && !year) {
+                    document.getElementById('year-select-error').style.display = 'block';
+                    valid = false;
+                } else {
+                    document.getElementById('year-select-error').style.display = 'none';
+                }
+
+                if (timeFrame === 'this-month' && !month) {
+                    document.getElementById('month-select-error').style.display = 'block';
+                    valid = false;
+                } else {
+                    document.getElementById('month-select-error').style.display = 'none';
+                }
+
+                if (!reportType) {
+                    document.getElementById('report-type-error').style.display = 'block';
+                    valid = false;
+                } else {
+                    document.getElementById('report-type-error').style.display = 'none';
+                }
+
+                if (timeFrame === 'custom' && (!startDate || !endDate)) {
+                    document.getElementById('date-error').style.display = 'block';
+                    valid = false;
+                } else {
+                    document.getElementById('date-error').style.display = 'none';
+                }
+
+                if (valid) {
+                    // Send fetch request to backend
+                    fetch('/admin/generate-report', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ timeFrame, year, month, startDate, endDate, reportType })
+                    })
+                    .then(response => response.blob())
+                    .then(blob => {
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.style.display = 'none';
+                        a.href = url;
+                        a.download = reportType === 'pdf' ? 'sales_report.pdf' : 'sales_report.csv';
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                    })
+                    .catch(error => console.error('Error downloading report:', error));
+                }
+            });
+        });
+    </script>
 
 <%- include('adminFooter') %>
 

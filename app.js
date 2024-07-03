@@ -59,6 +59,12 @@ app.use((req,res,next)=>{
 })
 
 
+app.use((req,res,next)=>{
+    res.locals.isAdmin = req.session.admin;
+    next();
+})
+
+
 //main route
 
 app.get("/",(req,res)=>{

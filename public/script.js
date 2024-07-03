@@ -63,6 +63,10 @@ function showError(msg){
         icon:'error',
         title: 'Oops',
         text: msg,
+    }).then((res)=>{
+        if(res.isConfirmed){
+            window.location.reload()
+        }
     })
 }
 

@@ -4,6 +4,7 @@
 <header class="nav-bar py-5 mb-0" >
     <div class="container d-flex justify-content-between mb-2">
         <h1 class="h3 mb-0 fs-2 website-head">HEAR ME</h1>
+        <% if(isAdmin) {  %>
         <div class="icons d-flex justify-content-between gap-5">
                 <a class="icons d-flex flex-column align-items-center atag" href="/admin/home">
                     <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="#10051F" class="bi bi-house-fill" viewBox="0 0 16 16">
@@ -42,6 +43,12 @@
                       </svg>
                     <p>Coupons</p>
                 </a>
+                <a class="icons d-flex flex-column align-items-center atag" href="/admin/offer">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-percent" viewBox="0 0 16 16">
+                        <path d="M13.442 2.558a.625.625 0 0 1 0 .884l-10 10a.625.625 0 1 1-.884-.884l10-10a.625.625 0 0 1 .884 0M4.5 6a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m0 1a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5m7 6a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m0 1a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5"/>
+                      </svg>
+                    <p>Offers</p>
+                </a>
                 <a class="icons d-flex flex-column align-items-center atag" href="/admin/logout">
                     <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="#10051F" class="bi bi-power" viewBox="0 0 16 16">
                         <path d="M7.5 1v7h1V1z"/>
@@ -51,6 +58,7 @@
                 </a>
 
         </div>
+        <% } %>
     </div>
     <div class="nav-line w-100"></div>
 </header>

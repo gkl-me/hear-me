@@ -34,7 +34,7 @@
                     <td><i class="bi bi-currency-rupee"></i><%= order.totalPrice %></td>
                     <td><%= order.paymentMethod %></td>
                     <td>
-                        <%= order.status %>
+                        <span class="status <%= order.status %>"><%= order.status %></span>
                     </td>
                     <td>
                         <a class="atag" href="/admin/orders/edit/<%=order.id%>"><i class="bi bi-pencil-square"></i></a>

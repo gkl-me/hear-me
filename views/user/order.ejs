@@ -58,6 +58,9 @@
         border-radius: 5px;
     
     }
+    .bi-currency-rupee{
+        font-size: 15px;
+    }
 
 
 </style>
@@ -83,37 +86,44 @@
         <div class="col-xl-8">
             <div class="tab-content" id="order-content">
                 <div class="tab-pane fade show active" id="order-status" role="tabpanel" aria-labelledby="order-status-tab">
-                    <% if(order.length > 0 && order.some(o => o.status === 'processing' || o.status === 'shipped' )) { %>
-                        <% order.filter(o => o.status === 'processing' || o.status === 'shipped').forEach((order) => { %>
+                    <% if(order.length > 0 && order.some(o => o.status === 'processing' || o.status === 'shipped' ||  o.status === 'returning' )) { %>
+                        <% order.filter(o => o.status === 'processing' || o.status === 'shipped' || o.status === 'returning' ).forEach((order) => { %>
                         <div class="card border shadow-none mb-4">
-                            <div class="card-body">
+                            <div class="card-body" >
                                 <div class="product-list">
                                     <% order.products.forEach((product) => { %>
-                                    <div class="product-item d-flex align-items-start border-bottom pbottom-3 mb-3">
-                                        <div class="me-3">
+                                    <div class="product-item d-flex gap-4 align-items-start border-bottom pbottom-3 mb-3">
+                                        <div class="me-3" onclick="orderDetails(`<%=order.id%>`)">
                                             <img src="../../<%= product.productId.productImage[0]%>" alt="" class="avatar-lg rounded">
+                                            <h5 class="text-truncate font-size-18"><a href='/user/product/<%= product.productId._id %>' class="text-dark"><%= product.productId.productName %></a></h5>
                                         </div>
                                         <div class="flex-grow-1 align-self-center overflow-hidden">
                                             <div class="mb-3">
-                                                <h5 class="text-truncate font-size-18"><a href='/user/product/<%= product.productId._id %>' class="text-dark"><%= product.productId.productName %></a></h5>
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-4">
-                                                    <div class="mtop-2">
-                                                        <p class="text-muted mbottom-2">Price</p>
-                                                        <h5 class="mb-0 mtop-2"><i class="bi bi-currency-rupee"></i><%= product.price %></h5>
+                                                    <div class="mtop-2 d-flex">
+                                                        <p class="text-muted mbottom-2">Price: </p>
+                                                        <% if(product.discount) {%>
+                                                            <h5 class="text-decoration-line-through text-danger"><i class="bi bi-currency-rupee"></i><%= product.price %> </h5>
+                                                            <h5 class=""><i class="bi bi-currency-rupee"></i><%= product.discountMrp %></h5>
+                                                            
+                                                            <%}else{ %>
+                                                                <h5 class=""><i class="bi bi-currency-rupee"></i><%= product.price %></h5>
+
+                                                           <% } %>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4">
-                                                    <div class="mtop-2">
-                                                        <p class="text-muted mbottom-2">Quantity</p>
+                                                    <div class="mtop-2 d-flex">
+                                                        <p class="text-muted mbottom-2">Quantity: </p>
                                                         <h5><%= product.quantity %></h5>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4">
-                                                    <div class="mtop-2">
-                                                        <p class="text-muted mbottom-2">Total</p>
-                                                        <h5><i class="bi bi-currency-rupee"></i><%= product.price * product.quantity %></h5>
+                                                    <div class="mtop-2 d-flex">
+                                                        <p class="text-muted mbottom-2">Total: </p>
+                                                        <h5><i class="bi bi-currency-rupee"></i><%= (product.quantity * product.discountMrp).toFixed(2) %></h5>
                                                     </div>
                                                 </div>
                                             </div>
@@ -126,15 +136,15 @@
                                         <div class="col-md-4">
                                             <div class="mtop-2">
                                                 <p class="text-muted mbottom-2">Status</p>
-                                                <h5><%= order.status %></h5>
+                                                <span class="status <%= order.status %>"><%= order.status %></span>
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="mtop-2">
                                                 <p class="text-muted mbottom-2">Total Price</p>
-                                                <h5><i class="bi bi-currency-rupee"></i><%= order.totalPrice %></h5>
-                                                <% if(order.discountAmount) { %>
-                                                <p class="text-muted mbottom-2"><small>Coupon Applied: <i class="bi bi-currency-rupee"></i><%= order.discountAmount %></small></p>
+                                                <h5><i class="bi bi-currency-rupee"></i><%= order.totalPrice.toFixed(2) %></h5>
+                                                <% if(order.couponDiscount) { %>
+                                                <p class="text-muted mbottom-2"><small>Coupon: <i class="bi bi-currency-rupee"></i>-<%= order.couponDiscount.toFixed(2) %></small></p>
                                                 <% } %>
                                             </div>
                                         </div>
@@ -163,34 +173,41 @@
                     <% if(order.length > 0 && order.some(o => o.status === 'delivered')) { %>
                         <% order.filter(o => o.status === 'delivered').forEach((order) => { %>
                         <div class="card border shadow-none mb-4">
-                            <div class="card-body">
+                            <div class="card-body " >
                                 <div class="product-list">
                                     <% order.products.forEach((product) => { %>
-                                    <div class="product-item d-flex align-items-start border-bottom pbottom-3 mb-3">
-                                        <div class="me-3">
+                                    <div class="product-item d-flex gap-4 align-items-start border-bottom pbottom-3 mb-3">
+                                        <div class="me-3" onclick="orderDetails(`<%=order.id%>`)">
                                             <img src="../../<%= product.productId.productImage[0]%>" alt="" class="avatar-lg rounded">
+                                            <h5 class="text-truncate font-size-18"><a href='/user/product/<%= product.productId._id %>' class="text-dark"><%= product.productId.productName %></a></h5>
                                         </div>
                                         <div class="flex-grow-1 align-self-center overflow-hidden">
                                             <div class="mb-3">
-                                                <h5 class="text-truncate font-size-18"><a href='/user/product/<%= product.productId._id %>' class="text-dark"><%= product.productId.productName %></a></h5>
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-4">
-                                                    <div class="mtop-2">
-                                                        <p class="text-muted mbottom-2">Price</p>
-                                                        <h5 class="mb-0 mtop-2"><i class="bi bi-currency-rupee"></i><%= product.price %></h5>
+                                                    <div class="mtop-2 d-flex">
+                                                        <p class="text-muted mbottom-2">Price: </p>
+                                                        <% if(product.discount) {%>
+                                                            <h5 class="text-decoration-line-through text-danger"><i class="bi bi-currency-rupee"></i><%= product.price %> </h5>
+                                                            <h5 class=""><i class="bi bi-currency-rupee"></i><%= product.discountMrp %></h5>
+                                                            
+                                                            <%}else{ %>
+                                                                <h5 class=""><i class="bi bi-currency-rupee"></i><%= product.price %></h5>
+
+                                                           <% } %>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4">
-                                                    <div class="mtop-2">
+                                                    <div class="mtop-2 d-flex">
                                                         <p class="text-muted mbottom-2">Quantity</p>
                                                         <h5><%= product.quantity %></h5>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4">
-                                                    <div class="mtop-2">
+                                                    <div class="mtop-2 d-flex">
                                                         <p class="text-muted mbottom-2">Total</p>
-                                                        <h5><i class="bi bi-currency-rupee"></i><%= product.price * product.quantity %></h5>
+                                                        <h5><i class="bi bi-currency-rupee"></i><%= (product.quantity * product.discountMrp).toFixed(2) %></h5>
                                                     </div>
                                                 </div>
                                             </div>
@@ -203,22 +220,22 @@
                                         <div class="col-md-4">
                                             <div class="mtop-2">
                                                 <p class="text-muted mbottom-2">Status</p>
-                                                <h5><%= order.status %></h5>
+                                                <<span class="status <%= order.status %>"><%= order.status %></span>
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="mtop-2">
                                                 <p class="text-muted mbottom-2">Total Price</p>
                                                 <h5><i class="bi bi-currency-rupee"></i><%= order.totalPrice %></h5>
-                                                <% if(order.discountAmount) { %>
-                                                    <p class="text-muted mbottom-2"><small>Coupon Applied: <i class="bi bi-currency-rupee"></i><%= order.discountAmount %></small></p>
+                                                <% if(order.couponDiscount) { %>
+                                                    <p class="text-muted mbottom-2"><small>Coupon: <i class="bi bi-currency-rupee"></i>-<%= order.couponDiscount.toFixed(2) %></small></p>
                                                     <% } %>
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="mtop-2">
                                                 <p class="text-muted mbottom-2">Action</p>
-                                                <h5><a href="/user/returnOrder/<%= order.id %>" class="btn submit-btn">Return Order</a></h5>
+                                                <h5><a class="btn submit-btn" id="returnOrder" data-bs-toggle="modal" data-bs-target="#returnOrderModal" data-id="<%= order.id %>">Return Order</a></h5>
                                             </div>
                                         </div>
                                     </div>
@@ -239,34 +256,41 @@
                     <% if(order.length > 0 && order.some(o => o.status === 'cancelled')) { %>
                         <% order.filter(o => o.status === 'cancelled').forEach((order) => { %>
                         <div class="card border shadow-none mb-4">
-                            <div class="card-body">
+                            <div class="card-body" >
                                 <div class="product-list">
                                     <% order.products.forEach((product) => { %>
-                                    <div class="product-item d-flex align-items-start border-bottom pbottom-3 mb-3">
-                                        <div class="me-3">
+                                    <div class="product-item d-flex gap-4 align-items-start border-bottom pbottom-3 mb-3">
+                                        <div class="me-3" onclick="orderDetails(`<%=order.id%>`)">
                                             <img src="../../<%= product.productId.productImage[0]%>" alt="" class="avatar-lg rounded">
+                                            <h5 class="text-truncate font-size-18"><a href='/user/product/<%= product.productId._id %>' class="text-dark"><%= product.productId.productName %></a></h5>
                                         </div>
                                         <div class="flex-grow-1 align-self-center overflow-hidden">
                                             <div class="mb-3">
-                                                <h5 class="text-truncate font-size-18"><a href='/user/product/<%= product.productId._id %>' class="text-dark"><%= product.productId.productName %></a></h5>
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-4">
-                                                    <div class="mtop-2">
+                                                    <div class="mtop-2 d-flex">
                                                         <p class="text-muted mbottom-2">Price</p>
-                                                        <h5 class="mb-0 mtop-2"><i class="bi bi-currency-rupee"></i><%= product.price %></h5>
+                                                        <% if(product.discount) {%>
+                                                            <h5 class="text-decoration-line-through text-danger"><i class="bi bi-currency-rupee"></i><%= product.price %> </h5>
+                                                            <h5 class=""><i class="bi bi-currency-rupee"></i><%= product.discountMrp %></h5>
+                                                            
+                                                            <%}else{ %>
+                                                                <h5 class=""><i class="bi bi-currency-rupee"></i><%= product.price %></h5>
+
+                                                           <% } %>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4">
-                                                    <div class="mtop-2">
+                                                    <div class="mtop-2 d-flex">
                                                         <p class="text-muted mbottom-2">Quantity</p>
                                                         <h5><%= product.quantity %></h5>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4">
-                                                    <div class="mtop-2">
+                                                    <div class="mtop-2 d-flex">
                                                         <p class="text-muted mbottom-2">Total</p>
-                                                        <h5><i class="bi bi-currency-rupee"></i><%= product.price * product.quantity %></h5>
+                                                        <h5><i class="bi bi-currency-rupee"></i><%= (product.quantity * product.discountMrp).toFixed(2) %></h5>
                                                     </div>
                                                 </div>
                                             </div>
@@ -279,15 +303,15 @@
                                         <div class="col-md-4">
                                             <div class="mtop-2">
                                                 <p class="text-muted mbottom-2">Status</p>
-                                                <h5><%= order.status %></h5>
+                                                <span class="status <%= order.status %>"><%= order.status %></span>
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="mtop-2">
                                                 <p class="text-muted mbottom-2">Total Price</p>
                                                 <h5><i class="bi bi-currency-rupee"></i><%= order.totalPrice %></h5>
-                                                <% if(order.discountAmount) { %>
-                                                    <p class="text-muted mbottom-2"><small>Coupon Applied: <i class="bi bi-currency-rupee"></i><%= order.discountAmount %></small></p>
+                                                <% if(order.couponDiscount) { %>
+                                                    <p class="text-muted mbottom-2"><small>Coupon: <i class="bi bi-currency-rupee"></i>-<%= order.couponDiscount.toFixed(2) %></small></p>
                                                     <% } %>
                                             </div>
                                         </div>
@@ -309,34 +333,41 @@
                     <% if(order.length > 0 && order.some(o => o.status === 'returned')) { %>
                         <% order.filter(o => o.status === 'returned').forEach((order) => { %>
                         <div class="card border shadow-none mb-4">
-                            <div class="card-body">
+                            <div class="card-body" >
                                 <div class="product-list">
                                     <% order.products.forEach((product) => { %>
-                                    <div class="product-item d-flex align-items-start border-bottom pbottom-3 mb-3">
-                                        <div class="me-3">
+                                    <div class="product-item d-flex gap-4 align-items-start border-bottom pbottom-3 mb-3">
+                                        <div class="me-3" onclick="orderDetails(`<%=order.id%>`)">
                                             <img src="../../<%= product.productId.productImage[0]%>" alt="" class="avatar-lg rounded">
+                                            <h5 class="text-truncate font-size-18"><a href='/user/product/<%= product.productId._id %>' class="text-dark"><%= product.productId.productName %></a></h5>
                                         </div>
                                         <div class="flex-grow-1 align-self-center overflow-hidden">
                                             <div class="mb-3">
-                                                <h5 class="text-truncate font-size-18"><a href='/user/product/<%= product.productId._id %>' class="text-dark"><%= product.productId.productName %></a></h5>
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-4">
-                                                    <div class="mtop-2">
+                                                    <div class="mtop-2 d-flex">
                                                         <p class="text-muted mbottom-2">Price</p>
-                                                        <h5 class="mb-0 mtop-2"><i class="bi bi-currency-rupee"></i><%= product.price %></h5>
+                                                        <% if(product.discount) {%>
+                                                            <h5 class="text-decoration-line-through text-danger"><i class="bi bi-currency-rupee"></i><%= product.price %> </h5>
+                                                            <h5 class=""><i class="bi bi-currency-rupee"></i><%= product.discountMrp %></h5>
+                                                            
+                                                            <%}else{ %>
+                                                                <h5 class=""><i class="bi bi-currency-rupee"></i><%= product.price %></h5>
+
+                                                           <% } %>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4">
-                                                    <div class="mtop-2">
+                                                    <div class="mtop-2 d-flex">
                                                         <p class="text-muted mbottom-2">Quantity</p>
                                                         <h5><%= product.quantity %></h5>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4">
-                                                    <div class="mtop-2">
+                                                    <div class="mtop-2 d-flex">
                                                         <p class="text-muted mbottom-2">Total</p>
-                                                        <h5><i class="bi bi-currency-rupee"></i><%= product.price * product.quantity %></h5>
+                                                        <h5><i class="bi bi-currency-rupee"></i><%= (product.quantity * product.discountMrp).toFixed(2) %></h5>
                                                     </div>
                                                 </div>
                                             </div>
@@ -349,15 +380,15 @@
                                         <div class="col-md-4">
                                             <div class="mtop-2">
                                                 <p class="text-muted mbottom-2">Status</p>
-                                                <h5><%= order.status %></h5>
+                                                <span class="status <%= order.status %>"><%= order.status %></span>
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="mtop-2">
                                                 <p class="text-muted mbottom-2">Total Price</p>
                                                 <h5><i class="bi bi-currency-rupee"></i><%= order.totalPrice %></h5>
-                                                <% if(order.discountAmount) { %>
-                                                    <p class="text-muted mbottom-2"><small>Coupon Applied: <i class="bi bi-currency-rupee"></i><%= order.discountAmount %></small></p>
+                                                <% if(order.couponDiscount) { %>
+                                                    <p class="text-muted mbottom-2"><small>Coupon: <i class="bi bi-currency-rupee"></i>-<%= order.couponDiscount.toFixed(2) %></small></p>
                                                     <% } %>
                                             </div>
                                         </div>
@@ -388,7 +419,7 @@
             <% if(order.length > 0 && order.some(o => o.status === 'pending')) { %>
                 <% order.filter(o => o.status === 'pending').forEach((order) => { %>
                 <div class="card border shadow-none mb-4">
-                    <div class="card-body">
+                    <div class="card-body" onclick="orderDetails(`<%= order.id%>`)">
                         <div class="product-list">
                             <% order.products.forEach((product) => { %>
                             <div class="product-item d-flex align-items-start border-bottom pbottom-3 mb-3">
@@ -412,9 +443,9 @@
                                     </div>
                                     <div class="mtop-2">
                                         <p class="text-muted mbottom-2">Action</p>
-                                        <div class="d-flex">
+                                        <div class="d-flex gap-2">
                                            <div>
-                                            <a href="/user/proceedPayment/<%= order.id %>" class="btn submit-btn">Pay Now</a>
+                                            <a onclick="retryPayment(`<%= order.id %>`)" class="btn submit-btn">Retry Payment</a>
                                            </div>
                                            <div>
                                             <a href="/user/removeOrder/<%= order.id %>" class="btn submit-btn">Remove</a>
@@ -458,12 +489,41 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <a  class="btn submit-btn" id="submitCancelOrder">Cancel</a>
+                <a  class="btn submit-btn" id="submitCancelOrder">Confirm</a>
             </div>
         </div>
     </div>
 </div>
 
+
+<!-- order return modal  -->
+
+<div class="modal fade" id="returnOrderModal" tabindex="-1" aria-labelledby="cancelOrderModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cancelOrderModalLabel">Return Order</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <label for="cancelReason" class="form-label">Reason for Return</label>
+                        <textarea class="form-control" id="cancelReason" rows="3" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a  class="btn submit-btn" id="submitReturnOrder">Confirm</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <script>
 
@@ -474,6 +534,115 @@
             document.getElementById('submitCancelOrder').setAttribute('href', `/user/orderCancel/${orderId}`);
         })
     })
+
+
+    const orderReturn = document.querySelectorAll('#returnOrder').forEach((btn)=>{
+        btn.addEventListener('click',function(){
+            const orderId = this.getAttribute('data-id')
+            document.getElementById('submitReturnOrder').setAttribute('href',`/user/returnOrder/${orderId}`)
+        })
+    })
+
+
+    async function retryPayment(orderId){
+
+        try {
+
+            const res = await fetch('/user/retryRazorPay',{
+            method: 'POST',
+            headers: {
+                'Content-Type':'application/json'
+            },
+            body: JSON.stringify({orderId})
+        })
+
+        if(res.ok){
+
+            const retryPaymentData = await res.json()
+
+            const options = {
+                    key: 'rzp_test_AIcpmo1LwYwWKt',
+                    amount: retryPaymentData.amount,
+                    currency: "INR",
+                    name: 'HearMe',
+                    order_id: retryPaymentData.razorpayOrderId.id,
+                    handler: async function(response) {
+                        try {
+
+                            
+                            
+                            const resData = {
+                                orderId,
+                                razorpayOrderId: response.razorpay_order_id,
+                                paymentId: response.razorpay_payment_id,
+                            }
+
+                            const payment = await fetch('/user/retryPayment', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(resData)
+                            })
+
+                            if(payment.ok){
+                                
+                                const paymentData = payment.json()
+
+                                window.location.href = '/user/orderSuccess'
+                            }
+
+                        } catch (error) {
+                            console.log(`handler error ${error}`)
+                        }
+                    },
+                    prefill: {
+                        name: retryPaymentData.contactInfo.name,
+                        email: retryPaymentData.contactInfo.email,
+                        contact: retryPaymentData.contactInfo.phone
+                    },
+                    notes: {
+                        address: retryPaymentData.address
+                    },
+                    theme: {
+                        color: "#3399cc"
+                    },
+                    "modal": {
+                        "ondismiss": function () {
+                             window.location.href = '/user/orders'
+                             }
+                            }
+
+                }
+                const rzp1 = new Razorpay(options);
+
+                rzp1.on('payment.failed', async function (response){
+
+
+                    showError('Payment Failure')
+
+                })
+
+                rzp1.open()
+
+
+        }else{
+            
+            const error = await res.text()
+            showError(error)
+
+        }
+            
+        } catch (error) {
+            console.log(`error from retyr paymment fetch ${error}`)
+        }
+
+    }
+
+    function orderDetails(orderId){
+        console.log(orderId)
+        window.location.href = `/user/orderDetails/${orderId}`
+    }
 
 </script>
 

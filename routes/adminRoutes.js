@@ -7,6 +7,7 @@ const productController = require('../controller/adminController/productControll
 const userContoller = require('../controller/adminController/userController')
 const orderController = require('../controller/adminController/orderController')
 const couponController = require('../controller/adminController/couponController')
+const offerController = require('../controller/adminController/offerController')
 
 //home routes
 
@@ -73,6 +74,19 @@ admin.post('/addCoupon',isAdmin,couponController.addCoupon)
 admin.post('/editCoupon',isAdmin,couponController.editCoupon)
 admin.get('/deleteCoupon/:id',isAdmin,couponController.deleteCoupon)
 admin.get('/couponStatus',isAdmin,couponController.status)
+
+// offer routes
+admin.get('/offer',isAdmin,offerController.renderOfferPage)
+admin.post('/addOffer',isAdmin,offerController.addOffer)
+admin.post('/editOffer',isAdmin,offerController.editOffer)
+admin.get('/deleteOffer/:id',isAdmin,offerController.deleteOffer)
+admin.get('/offerStatus',isAdmin,offerController.offerStatus)
+
+
+// admin sales report generate
+admin.post('/generate-report',isAdmin,adminController.generateReport)
+
+admin.get('/charts',isAdmin,adminController.salesChart)
 
 
 module.exports=admin

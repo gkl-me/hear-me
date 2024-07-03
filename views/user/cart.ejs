@@ -38,12 +38,11 @@
     <div class="row">
         <div class="col-md-8">
 
-            <% let totalPrice = 0
+            <% let subTotal = 0
             if(cart && cart.products.length > 0){  %>
                 <% cart.products.forEach(product => { 
                     
-                    totalPrice += product.price * product.quantity
-
+                    subTotal += product.price * product.quantity
                     %>
 
 
@@ -57,7 +56,21 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <h5 class="card-title"><%= product.productId.productName %></h5>
-                                    <p class="mb-0"><strong><%= product.productId.productPrice %></strong></p>
+                                    <% if(product.discount) {%>
+                                        <span class="d-flex gap-1">
+                                            <p class="mb-0 text-danger"><i class="bi bi-currency-rupee"></i><strong class="text-decoration-line-through"><%= product.productId.productPrice %></strong></p>
+                                            <p class="mb-0"><i class="bi bi-currency-rupee"></i><strong><%= product.discountMrp %></strong></p>
+                                        </span>
+                                        <span>
+                                            <p class="mb-0 text-danger">-<strong><%= product.discount %>%OFF</strong></p>                            
+                                        </span>
+                                    <% }else{ %>
+                                        <span class="d-flex gap-1">
+                                            <p class="mb-0"><i class="bi bi-currency-rupee"></i><strong><%= product.productId.productPrice %></strong></p>
+                                            <!-- <p class="mb-0"><i class="bi bi-currency-rupee"></i><strong><%= product.discountMrp %></strong></p> -->
+                                        </span>
+                                        
+                                        <% } %>
                                 </div>
                                 <div class="input-group quantity-counter">
                                     <button class="btn btn-outline-secondary btn-sm"  onclick="decrement(`<%= product.productId._id %>`)" >-</button>
@@ -65,7 +78,11 @@
                                     <button class="btn btn-outline-secondary btn-sm" onclick="increment(`<%= product.productId._id %>`)">+</button>
                                 </div>
                                 <div>
-                                    <p class="mb-0"><strong><i class="bi bi-currency-rupee"></i><%= product.productId.productPrice * product.quantity %></strong></p>
+                                    <% if(product.discount) { %>
+                                        <p class="mb-0"><strong><i class="bi bi-currency-rupee"></i><%= (product.discountMrp * product.quantity).toFixed(2) %></strong></p>
+                                    <% } else {%>
+                                        <p class="mb-0"><strong><i class="bi bi-currency-rupee"></i><%= (product.price * product.quantity).toFixed(2) %></strong></p>
+                                    <% } %>    
                                 </div>
                     
                                 <button class="btn btn-outline-danger btn-sm me-2" onclick="removeFromCart(`<%= product.productId._id %>`)" ><i class="bi bi-trash3"></i></button>
@@ -105,19 +122,19 @@
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             Sub Total
-                            <span><i class="bi bi-currency-rupee"></i><%= totalPrice %></span>
+                            <span><i class="bi bi-currency-rupee"></i><%= cart? subTotal.toFixed(2): 0.00 %></span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             Discount
-                            <span><i class="bi bi-currency-rupee"></i>0.00</span>
+                            <span class="text-danger">-<i class="bi bi-currency-rupee"></i><%= cart? (subTotal-cart.totalPrice).toFixed(2) : 0.00 %></span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             Shipping Charge
-                            <span><i class="bi bi-currency-rupee"></i>0.00</span>
+                            <span class="text-success">+<i class="bi bi-currency-rupee"></i><%= cart? cart.shippingCharge : 0.00 %></span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             <strong>Total</strong>
-                            <strong><i class="bi bi-currency-rupee"></i><%= totalPrice %></strong>
+                            <strong><i class="bi bi-currency-rupee"></i><%= cart? cart.totalPrice.toFixed(2): 0.00 %></strong>
                         </li>
                     </ul>
                 </div>

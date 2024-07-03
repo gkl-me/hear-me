@@ -109,6 +109,15 @@
 	margin: 100px auto;
 }
 
+/* #pay-methodoption1:disabled + .wallet-checkout{
+    background-color: red;
+} */
+
+.wallet-checkout:has(#pay-methodoption1:disabled){
+    background-color: #f0f0f0;
+}
+
+
 
 </style>
 </head>
@@ -198,11 +207,11 @@
                         <h5 class="font-size-16 mb-1">Payment Info</h5>
                         <h5 class="font-size-14 mb-3">Payment method :</h5>
                         <div class="payment-methods">
-                            <label class="card-radio-label">
-                                <input type="radio" name="paymentMethod" value="wallet" id="pay-methodoption1" class="card-radio-input" <% if (balance < total) { %>disabled<% } %>>
+                            <label class="card-radio-label wallet-checkout">
+                                <input type="radio" name="paymentMethod" value="wallet" id="pay-methodoption1" class="card-radio-input" <% if (balance < cart.totalPrice) { %>disabled<% } %>>
                                 <span class="card-radio py-3 text-center text-truncate">
                                     <i class="bi bi-wallet d-block h2 mb-3"></i>
-                                    Wallet (Balance: <%= balance %>)
+                                    Wallet (Balance: <%= balance.toFixed(2) %>)
                                 </span>
                             </label>
                             <label class="card-radio-label">
@@ -259,17 +268,32 @@
 
                             <% } ) %>
                             <tr>
-                                <th>Discount</th>
+                                <th>Total Price </th>
+                                <th></th>
+                                <th class="text-"><i class="bi bi-currency-rupee"></i><span id="discountMrp"><%= total.toFixed(2) %></span></th>
+                            </tr>
+                            <tr>
+                                <th>Discount on MRP</th>
+                                <th></th>
+                                <th class="text-danger">-<i class="bi bi-currency-rupee"></i><span id="discountMrp"><%= (total - cart.totalPrice).toFixed(2) %></span></th>
+                            </tr>
+                            <tr>
+                                <th>Coupon Discount</th>
                                 <th></th>
                                 <th class="text-danger">-<i class="bi bi-currency-rupee"></i><span id="discountAmount">0.00</span></th>
+                            </tr>
+                            <tr>
+                                <th>Shpping Charge</th>
+                                <th></th>
+                                <th class="text-success">+<i class="bi bi-currency-rupee"></i><span id="discountAmount"><%=cart.shippingCharge.toFixed(2) %></span></th>
                             </tr>
                             
                         </tbody>
                         <tfoot>
                             <tr>
-                                <th>Total :</th>
+                                <th>Total  :</th>
                                 <th></th>
-                                <td><i class="bi bi-currency-rupee"></i><span id="totalPriceCheckout"><%= total %></span></td>
+                                <td><i class="bi bi-currency-rupee"></i><span id="totalPriceCheckout"><%= cart.totalPrice.toFixed(2) %></span></td>
                             </tr>
                         </tfoot>
                     </table>
@@ -336,26 +360,6 @@
 </div>
 </div>
 
-
-<!-- Modal HTML
-<div id="myModal" class="modal fade" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
-	<div class="modal-dialog modal-confirm" role="document">
-		<div class="modal-content">
-			<div class="modal-header justify-content-center">
-				<div class="icon-box">
-					<i class="material-icons">&#xE876;</i>
-				</div>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-			</div>
-			<div class="modal-body text-center">
-				<h4>Great!</h4>	
-				<p>Your Order has been successfully placed.</p>
-                <p>The will be redirected to order page</p>
-				<button class="btn btn-success" data-bs-dismiss="modal" id="goToHome" ><span>Go To Home</span> <i class="material-icons">&#xE5C8;</i></button>
-			</div>
-		</div>
-	</div>
-</div> -->
 
 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
@@ -436,7 +440,7 @@
         const form = document.getElementById('checkout-form')
         const formData = new FormData(form)
         let data = Object.fromEntries(formData.entries());
-        data={...data,...{couponCode:couponCode}}
+        data={...data,couponCode:couponCode}
 
         const res = await fetch('/user/checkout',{
             method: 'POST',
@@ -510,13 +514,19 @@
                 const rzp1 = new Razorpay(options);
 
                 rzp1.on('payment.failed', async function (response){
+
+                    const resData = {
+                                razorpayOrderId: responseData.razorpayOrderId,
+                            }
+
+                    const combinedData = { ...data, ...resData };
                     
-                    const res = await fetch('/user/payment',{
+                    const res = await fetch('/user/failedpayment',{
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({...data, paymentStatus: 'Pending' })
+                        body: JSON.stringify({...combinedData, paymentStatus: 'Pending' })
                     })
 
                     if(res.ok){
@@ -569,14 +579,17 @@
 
             
             if(!res.ok){
-                    const error = res.text()
+                    const error = await res.text()
                     showError(error)
-                }
+                    
+            }else{
+                const couponData = await res.json()
 
-            const couponData = await res.json()
+                updateTotal(couponData.totalPrice,couponData.discountAmount,couponData.discount);
+                showCouponBadge(couponCode);
+            }
 
-            updateTotal(couponData.totalPrice,couponData.discountAmount);
-            showCouponBadge(couponCode);
+            
 
             
         } catch (error) {
@@ -584,13 +597,13 @@
         }
     }
 
-    function updateTotal(total, discount) {
+    function updateTotal(total, discount,percent) {
     const totalElement = document.getElementById('totalPriceCheckout');
     const discountElement = document.getElementById('discountAmount');
     
     if (totalElement && discountElement) {
-        totalElement.textContent = total.toFixed(2);
-        discountElement.textContent = discount.toFixed(2);
+        totalElement.textContent = total.toFixed(2) 
+        discountElement.textContent = `${discount.toFixed(2)} (${percent*100}%)`
     } else {
         console.error('One or both elements not found:', totalElement, discountElement);
     }
@@ -601,6 +614,7 @@
         document.getElementById('pay-methodoption1').disabled = false;
     } else {
         document.getElementById('pay-methodoption1').disabled = true;
+        // document.getElementsByClassName("wallet-checkout")[0].style.backgroundColor = '#fefeeb'
     }
 }
 

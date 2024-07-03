@@ -230,6 +230,40 @@ i:hover{
     color: #A30D11;
 }
 
+.processing {
+    background-color: #CCE5FF; /* light blue */
+    color: #0066CC; /* dark blue */
+}
+
+.cancelled {
+    background-color: #FBE7E8; /* light red */
+    color: #A30D11; /* dark red */
+}
+
+.delivered {
+    background-color: #D7FBD9; /* light green */
+    color: #1E9B37; /* dark green */
+}
+
+.shipped {
+    background-color: #FFFAD5; /* light yellow */
+    color: #B89400; /* dark yellow */
+}
+
+.returning {
+    background-color: #FFE5CC; /* light orange */
+    color: #CC6600; /* dark orange */
+}
+
+.returned {
+    background-color: #F2E5FF; /* light purple */
+    color: #6A00B4; /* dark purple */
+}
+
+.pending {
+    background-color: #EAEAEA; /* light gray */
+    color: #666666; /* dark gray */
+}
 
 
 
@@ -411,7 +445,38 @@ textarea{
     width: 25%;
     text-align: center;
 }
+.discount-tag-badge {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: rgb(203, 4, 4);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-weight: bold;
+    z-index: 1;
+    border-top-left-radius: 20px;
+    width: 25%;
+    text-align: center;
+}
 
+.discount-tag {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    background-color: rgb(203, 4, 4);
+    color: white;
+    width: 50px;             /* Increase size for better visibility */
+    height: 50px;            /* Increase size for better visibility */
+    border-radius: 50%;      /* Make it a circle */
+    font-weight: bold;
+    z-index: 1;
+    /* display: flex; */
+    text-align: center;
+    padding: 2px;
+    /* line-height: 20px;       Center text vertically */
+    font-size: 12px;         /* Adjust font size */
+}
 
 
 
@@ -500,6 +565,7 @@ textarea{
     align-items: center;
     cursor: pointer;
     overflow: hidden;
+    position: relative;
 }
 
 .main-image img{

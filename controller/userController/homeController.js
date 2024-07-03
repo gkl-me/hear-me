@@ -1,6 +1,7 @@
 const productSchema = require('../../model/product.model')
 const collectionSchema = require('../../model/collection.model')
 const wishlistSchema = require('../../model/wishlist.modal')
+const findOffer = require('../../services/findOffer')
 
 
 const home= async (req,res)=> {
@@ -8,7 +9,16 @@ const home= async (req,res)=> {
     try {
         
 
-        const product = await productSchema.find({isActive: true}).sort({createdAt: -1}).limit(3)
+        const products = await productSchema.find({isActive: true}).sort({createdAt: -1}).limit(3)
+
+        const productsWithDiscounts = await Promise.all(products.map(async p =>{
+            const discount = await findOffer(p.id)
+            const productDiscount = p.toObject()
+            productDiscount.discount = discount
+            productDiscount.discountMrp = (p.productPrice * (1- discount/100)).toFixed(2)
+            return productDiscount
+
+        } ))
 
         if(req.session.user){
 
@@ -16,11 +26,11 @@ const home= async (req,res)=> {
 
             const wishlist = await wishlistSchema.findOne({userId})
 
-            return res.render('user/home',{title:'Home',product,user:userId,wishlist})
+            return res.render('user/home',{title:'Home',product:productsWithDiscounts,user:userId,wishlist})
 
         }else{
             
-            return res.render('user/home',{title:'Home',product, user:req.session.user})
+            return res.render('user/home',{title:'Home',product:productsWithDiscounts, user:req.session.user})
 
         }
 
@@ -102,9 +112,18 @@ const explore = async(req,res)=>{
 
         const wishlist = await wishlistSchema.findOne({userId})
 
+        const productsWithDiscounts = await Promise.all(paginatedProducts.map(async p =>{
+            const discount = await findOffer(p.id)
+            const productDiscount = p.toObject()
+            productDiscount.discount = discount
+            productDiscount.discountMrp = (p.productPrice * (1- discount/100)).toFixed(2)
+            return productDiscount
+
+        } ))
+
         res.render('user/explore', {
             title: 'Explore',
-            product: paginatedProducts,
+            product: productsWithDiscounts,
             category,
             user: req.session.user,
             currentPage,

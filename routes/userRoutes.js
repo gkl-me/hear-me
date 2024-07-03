@@ -82,7 +82,7 @@ user.post('/cart/remove',isUser,cartController.removeFromCart)
 user.get('/checkout',isUser,checkoutController.renderCheckout)
 user.post('/checkout/addAddress',isUser,checkoutController.addAddress)
 user.post('/checkout',isUser,checkoutController.checkoutProceed)
-user.post('/payment',isUser,checkoutController.payment)
+user.post('/failedpayment',isUser,checkoutController.paymentFailed)
 
 
 //order page
@@ -93,6 +93,13 @@ user.post('/applycoupon',isUser,checkoutController.applyCoupon)
 
 user.get('/orderSuccess',isUser,orderController.orderSucces)
 user.get('/orderFailure',isUser,orderController.orderFailure)
+
+user.post('/retryRazorPay',isUser,orderController.retryRazorPay)
+user.post('/retryPayment',isUser,orderController.retryPayment)
+user.get('/removeOrder/:id',isUser,orderController.removeOrder)
+
+
+user.get('/orderDetails/:id',isUser,orderController.orderDetails)
 
 //wallet 
 user.get('/wallet',isUser,walletController.renderWallet)

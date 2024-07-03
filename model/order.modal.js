@@ -32,20 +32,29 @@ const orderSchema = mongoose.Schema({
         price:{
             type: Number ,
             required: true
+        },
+        discount:{
+            type: Number,
+            default: 0
+        },
+        discountMrp:{
+            type: Number,
         }
     }],
     totalPrice: {
         type: Number,
         required: true
     },
-    discountAmount:{
+    couponDiscount:{
         type:Number,
         default: 0
     },
-
+    couponCode:{
+        type: String
+    },
     status : {
         type: String,
-        enum: ['pending','processing','cancelled','shipped','delivered','returned'],
+        enum: ['pending','processing','cancelled','shipped','delivered','returning','returned'],
         default : 'processing'
     },
 

@@ -10,6 +10,8 @@ const addToWishlist = async (req,res) => {
 
         let wishlist = await wishlistSchema.findOne({userId})
 
+        // check if wishlist present
+
         if(!wishlist){
             // console.log(1)
             wishlist = new wishlistSchema({userId,products:[]})
@@ -19,6 +21,7 @@ const addToWishlist = async (req,res) => {
         const index = wishlist.products.findIndex((product)=> product.productId.toString() === productId)
         const inWishlist = index !== -1
 
+        // if wishlist already present removes product using index 
         if(inWishlist){
             // console.log(2)
             wishlist.products.splice(index,1)
@@ -61,6 +64,8 @@ const updateWishlist = async (req,res)=>{
 
     try {
         
+        // update wishlist when product is removed from wishlist
+
         const userId = req.session.user
 
         const wishlist = await wishlistSchema.findOne({userId}).populate('products.productId')

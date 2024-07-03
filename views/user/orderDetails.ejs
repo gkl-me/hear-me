@@ -1,4 +1,4 @@
-<%- include('adminNav') %>
+<%- include('nav') %>
 
 <style>
     .card {
@@ -47,7 +47,12 @@
                         <table class="table table-borderless">
                             <tbody>
 
-                                <% order.products.forEach((product)=> { %>
+                                <% let subTotal = 0;
+                                let discount = 0 ;
+                                order.products.forEach((product)=> { 
+                                     subTotal += product.price * product.quantity
+                                     discount += product.discountMrp * product.quantity
+                                    %>
 
                                 <tr>
                                     <td>
@@ -70,19 +75,24 @@
                             <tfoot>
                                 <tr>
                                     <td colspan="2" class="text-start">Subtotal</td>
-                                    <td class="text-end"><i class="bi bi-currency-rupee"></i><%= order.totalPrice %></td>
+                                    <td class="text-end"><i class="bi bi-currency-rupee"></i><%= subTotal.toFixed(2) %></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" class="text-start">Discount On Price</td>
+                                    <td class="text-end text-danger"><i class="bi bi-currency-rupee"></i>-<%= (subTotal - discount).toFixed(2) %></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" class="text-start">Coupon Discount</td>
+                                    <td class="text-danger text-end"><i class="bi bi-currency-rupee"></i>-<%= order.couponDiscount.toFixed(2) %></td>
                                 </tr>
                                 <tr>
                                     <td colspan="2" class="text-start">Shipping</td>
-                                    <td class="text-end"><i class="bi bi-currency-rupee"></i>00.00</td>
+                                    <td class="text-end text-success"><i class="bi bi-currency-rupee"></i>+ <%= order.totalPrice < 500 ? (100.00).toFixed(2) : 0.00.toFixed(2) %></td>
                                 </tr>
-                                <tr>
-                                    <td colspan="2" class="text-start">Discount</td>
-                                    <td class="text-danger text-end"><i class="bi bi-currency-rupee"></i>00.00</td>
-                                </tr>
+                                
                                 <tr class="fw-bold">
                                     <td colspan="2" class="text-start">TOTAL</td>
-                                    <td class="text-end"><%= order.totalPrice %></td>
+                                    <td class="text-end"><i class="bi bi-currency-rupee"></i><%= order.totalPrice.toFixed(2) %></td>
                                 </tr>
                             </tfoot>
                         </table>
@@ -94,6 +104,10 @@
                         <div class="row">
                             <div class="col-lg-6">
                                 <h3 class="h6">Payment Method</h3>
+                                <p><% if(order.paymentMethod === 'razor-pay'){ %>
+                                    status: <%= order.paymentDetail.paymentStatus %>
+                                <% }%>
+                                </p>
                                 <p><%= order.paymentMethod %> <br>Total: <%= order.totalPrice %></p>
                             </div>
                             <div class="col-lg-6">
@@ -115,7 +129,7 @@
                     <div class="card-body">
                         <h3 class="h6">Contact Information</h3>
                         <hr>
-                        <h3 class="h6">Address</h3>
+                        <!-- <h3 class="h6">Address</h3> -->
                         <address>
                             <%= order.contactInfo.name %><br>
                             <%= order.contactInfo.email %><br>
@@ -123,80 +137,19 @@
                         </address>
                     </div>
                 </div>
-                <!-- Change Order Status -->
                 <div class="card mb-4">
+                    <!-- Shipping information -->
                     <div class="card-body">
-                        <% if(order.status === 'returning') {%>
-                            <h3>Confirm Order Return</h3>
-                            <p>Confirm order successfully returned</p>
-                            <div>
-                                <a href="/admin/returnOrder" class="btn submit-btn">Confirm</a>
-                                <a href="/admin/orders" class="btn submit-btn-light">Go Back</a>
-                            </div>
-                        <%}else { %>
-                            <h3 class="h6">Change Order Status</h3>
-                            <form id="orderStatus-form" action="/admin/orders/update/<%=order.id%>" method="post" onsubmit="submitForm(event)" >
-                            <div class="mb-3">
-                                <label for="orderStatus" class="form-label">Order Status</label>
-                                <select class="form-select" name="status" id="orderStatus">
-                                    <option value="processing" <%= order.status === 'processing' ? 'selected' : '' %>>Processing</option>
-                                    <option value="cancelled" <%= order.status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
-                                    <option value="shipped" <%= order.status === 'shipped' ? 'selected' : '' %>>Shipped</option>
-                                    <option value="delivered" <%= order.status === 'delivered' ? 'selected' : '' %>>Delivered</option>
-                                </select>
-                            </div>
-                            <button class="btn submit-btn" >Update Status</button>
-                        </form>
-                        <% } %>
+                        <h3 class="h6">Order Status</h3>
+                        <hr>
+                            <span class="status <%=order.status %>" ><%=order.status %></span>
                     </div>
                 </div>
+                
             </div>
         </div>
     </div>
 </div>
 
 
-<script>
-
-async function submitForm(event){
-    
-    
-    try {
-        
-        event.preventDefault()
-
-        const form = document.getElementById('orderStatus-form')
-        const formData = new FormData(form)
-        const data = Object.fromEntries(formData.entries())
-
-        const res = await fetch(`/admin/orders/update/<%=order.id%>`,{
-
-            method: 'POST',
-            headers : {
-                'Content-Type':'application/json'
-            },
-            body : JSON.stringify(data)
-
-        })
-
-        if(res.ok){
-
-            window.location.href = '/admin/orders'
-
-        }else{
-
-            const error = await res.text()
-            showError(error)
-
-        }
-        
-    } catch (error) {
-        console.log(`error from change status fetch ${error}`)
-    }
-
-}
-
-
-</script>
-
-<%- include('adminFooter') %>
+<%- include('../admin/adminFooter') %>

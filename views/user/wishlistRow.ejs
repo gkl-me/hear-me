@@ -1,7 +1,7 @@
-<% if(wishlist.products.length !== 0) { %>
-<% wishlist.products.forEach(function(item) { %>
+<% if(wishlist && wishlist.products.length !== 0) { %>
+<% wishlist.products.forEach((item) =>{ %>
     <div class="col-md-4 mb-5">
-        <% if(item.productId.productQuantity === 0){ %>
+        <% if(item.productId && item.productId.productQuantity === 0){ %>
             <div class="product-card d-flex flex-column justify-content-start">
                 <a href="/user/product/<%= item.productId._id %>" class="image-card position-relative atag">
                     <img src="../../<%= item.productId.productImage[0] %>" alt="">
