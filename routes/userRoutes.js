@@ -12,6 +12,7 @@ const checkoutController = require('../controller/userController/checkoutControl
 const orderController = require('../controller/userController/orderController')
 const wishlistController = require('../controller/userController/wishlistController')
 const walletController = require('../controller/userController/walletController')
+const reviewController = require('../controller/userController/reviewController')
 
 const passport = require('passport')
 
@@ -100,6 +101,13 @@ user.get('/removeOrder/:id',isUser,orderController.removeOrder)
 
 
 user.get('/orderDetails/:id',isUser,orderController.orderDetails)
+user.get('/downloadInvoice/:id',isUser,orderController.downloadInvoice)
+
+//review
+
+user.get('/review/:productId',isUser,reviewController.getReview)
+user.post('/review',isUser,reviewController.setReview)
+user.get('/rating/:productId',reviewController.renderRatings)
 
 //wallet 
 user.get('/wallet',isUser,walletController.renderWallet)

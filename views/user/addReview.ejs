@@ -1,0 +1,139 @@
+<style>
+    .rating-stars {
+        display: inline-flex;
+        flex-direction: row-reverse;
+    }
+    .rating-stars > input {
+        display: none;
+    }
+    .rating-stars > label {
+        position: relative;
+        width: 28px;
+        font-size: 35px;
+        color: #ffc107;
+        cursor: pointer;
+    }
+    .rating-stars > label::before {
+        content: "\2605";
+        position: absolute;
+        opacity: 0;
+    }
+    .rating-stars > label:hover:before,
+    .rating-stars > label:hover ~ label:before {
+        opacity: 1 !important;
+    }
+    .rating-stars > input:checked ~ label:before {
+        opacity: 1;
+    }
+    .rating-stars:hover > input:checked ~ label:before {
+        opacity: 0.4;
+    }
+</style>
+
+<div class="modal fade" id="formModalReview" tabindex="-1" aria-labelledby="formModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="formModalLabel">Add a Comment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-4">
+                    <img src="https://i.imgur.com/d2dKtI7.png" height="100" width="100" alt="Profile Image">
+                </div>
+                <div class="text-center">
+                    <h4>Add a Comment</h4>
+                    <div><small id="reviewPresent" class="text-success"></small></div>
+                    <div class="rating-stars mb-3">
+                        <input type="radio" name="rating" value="5" id="star5"><label for="star5">☆</label>
+                        <input type="radio" name="rating" value="4" id="star4"><label for="star4">☆</label>
+                        <input type="radio" name="rating" value="3" id="star3"><label for="star3">☆</label>
+                        <input type="radio" name="rating" value="2" id="star2"><label for="star2">☆</label>
+                        <input type="radio" name="rating" value="1" id="star1"><label for="star1">☆</label>
+                    </div>
+                    <div class="mb-3">
+                        <textarea class="form-control" id="comment" placeholder="What is your view?" rows="4"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="addReview()">Send Message</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function resetReview(){
+        document.getElementById('formModalReview').addEventListener('hidden.bs.modal', function () {
+            // Reset the star rating
+            const checkedStar = document.querySelector('input[name="rating"]:checked');
+            if (checkedStar) {
+                checkedStar.checked = false;
+            }
+
+            // Reset the comment textarea
+            document.getElementById('comment').value = '';
+        });
+    }
+
+    async function loadReview(productId){
+        try {
+            
+            resetReview();
+            const res= await fetch(`/user/review/${productId}`)
+            
+            if(!res.ok){
+
+                resetReview();
+                document.getElementById('reviewPresent').innerHTML = ''
+                const error = await res.text()
+                console.log(error)
+            }else{
+                
+                const review = await res.json()
+                document.getElementById(`star${review.rating}`).checked = true;
+                document.getElementById('comment').value = review.comment;
+                document.getElementById('reviewPresent').innerHTML = 'Review already present, edit review'
+            }
+
+            document.getElementById('formReviewButton').setAttribute('data-id',productId)
+
+        } catch (error) {
+            console.log(`error from load review fetch ${error}`)
+        }
+    }
+
+    async function addReview(){
+        try {
+            const productId = document.getElementById('formReviewButton').getAttribute('data-id')
+            console.log(productId)
+
+            const rating = document.querySelector('input[name="rating"]:checked').value;
+            const comment = document.getElementById('comment').value;
+
+            const res = await fetch(`/user/review`,{
+                method: 'POST',
+                headers: {
+                    'Content-Type':'application/json'
+                },
+                body:JSON.stringify({productId,rating,comment})
+            })
+
+            if(res.ok){
+                const result = await res.json();
+                window.location.reload();
+
+            }else{
+                const error = await res.text();
+                console.log(error)
+            }
+            
+        } catch (error) {
+            console.log(`error from adding review fetch ${error}`)
+        }
+    }
+
+</script>

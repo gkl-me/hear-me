@@ -98,6 +98,8 @@ const home = async (req,res)=>{
         }
     ])
 
+    // console.log(orderTotalPrice)
+
 
     //find the best seller 
     const productSale = await orderSchema.aggregate([
@@ -180,14 +182,12 @@ const generateReport = async (req,res)=>{
 }
 
 async function generatePdf(orders, res) {
-    
-    const totalOrders = orders.length
+    const totalOrders = orders.length;
     const totalRevenue = orders
-    .filter(order => order.status !== 'pending' && order.status !== 'cancelled' && order.status !== 'returned')
-    .reduce((acc, curr) => acc + curr.totalPrice, 0);
+        .filter(order => order.status !== 'pending' && order.status !== 'cancelled' && order.status !== 'returned')
+        .reduce((acc, curr) => acc + curr.totalPrice, 0);
 
     const doc = new PDFdocs();
-
     const filename = 'sales-report.pdf';
 
     res.setHeader("Content-Disposition", `attachment; filename=${filename}`);
@@ -195,54 +195,52 @@ async function generatePdf(orders, res) {
 
     doc.pipe(res);
 
-    doc.font("Helvetica-Bold").fontSize(36).text("Hear ME", { align: "center", margin: 10 });
+    // Header
+    doc.fontSize(24).text('HEAR ME', 50, 50)
+       .fontSize(10)
+       .text('Your Company Address', 50, 80)
+       .text('City, State ZIP', 50, 95)
+       .fontSize(20)
+       .text('Sales Report', 250, 50, { align: 'center' })
+       .fontSize(10)
+       .text('Generated on:', 400, 50, { align: 'right' })
+       .text(new Date().toLocaleDateString(), 400, 65, { align: 'right' });
 
-    doc.moveDown();
+    // Summary
+    doc.roundedRect(50, 120, 500, 60, 10).stroke();
+    doc.fontSize(12).text('Summary', 60, 130);
+    doc.fontSize(10)
+       .text(`Total Orders: ${totalOrders}`, 60, 150)
+       .text(`Total Revenue: Rs ${totalRevenue.toFixed(2)}`, 300, 150);
 
-    // doc.text(`Total Orders : ${totalOrders}`);
-    doc.fontSize(10).fillColor("red").text(`Total Revenue : Rs ${totalRevenue.toFixed(2)}`);
-    doc.fontSize(10).fillColor("black").text(`Total Orders : ${totalOrders}`);
+    // Table
+    doc.moveDown(2);
+    const tableTop = 200;
+    doc.font("Helvetica-Bold").fontSize(10);
+    
+    // Table headers
+    ['Order Id', 'Address', 'Payment Method', 'Order Status', 'Total'].forEach((header, i) => {
+        doc.text(header, 50 + i * 100, tableTop);
+    });
 
-    doc.moveDown();
+    doc.moveTo(50, tableTop + 20).lineTo(550, tableTop + 20).stroke();
 
-    doc.moveDown(); // Move down after the title
-    doc.font("Helvetica-Bold").fillColor("black").fontSize(14).text(`Sales Report`, { align: "center", margin: 10 });
-    // doc.fontSize(12).text(`From ${startDate} To ${endDate}`, { align: "center", margin: 10 });
+    // Table rows
+    let y = tableTop + 30;
+    orders.forEach((order, index) => {
+        doc.font("Helvetica").fontSize(8);
+        doc.text(order._id.toString().slice(0, 10) + '...', 50, y);
+        doc.text(order.address.addressLine + '\n' + order.address.city + ' ' + order.address.state + "\n" + "Pincode: " + order.address.pincode, 150, y, { width: 100 });
+        doc.text(order.paymentMethod, 250, y);
+        doc.text(order.status, 350, y);
+        doc.text('Rs ' + order.totalPrice.toFixed(2), 450, y);
 
-    doc.moveDown();
-
-    const tableData = {
-        headers: [
-            'Order Id',
-            'Address',
-            'Payment Method',
-            'Order Status',
-            'Total'
-        ],
-        rows: orders.map((order) => {
-            return [
-                order._id,
-                order.address.addressLine + '\n' + order.address.city + ' ' + order.address.state + "\n" + "Pincode :" + order.address.pincode,
-                order.paymentMethod,
-                order.status,
-                'RS:' + order.totalPrice
-            ];
-        })
-    };
-
-    // console.log('Generated Table Data:', tableData); // Log the table data for debugging
-
-    try {
-        await doc.table(tableData, {
-            prepareHeader: () => doc.font("Helvetica-Bold").fontSize(10),
-            prepareRow: (row, i) => doc.font("Helvetica").fontSize(8),
-            hLineColor: '#b2b2b2',
-            vLineColor: '#b2b2b2',
-            textMargin: 2,
-        });
-    } catch (error) {
-        console.error('Error generating table:', error); // Log any errors in table generation
-    }
+        y += 40;
+        if (y > 700) {
+            doc.addPage();
+            y = 50;
+        }
+    });
 
     doc.end();
 }
@@ -263,7 +261,9 @@ async function generateExcel(orders, res) {
         { header: "Total", key: "total", width: 15 },
     ];
 
-    let totalSale = 0;
+    let totalSale = orders
+    .filter(order => order.status !== 'pending' && order.status !== 'cancelled' && order.status !== 'returned')
+    .reduce((acc, curr) => acc + curr.totalPrice, 0);
     let totalOrders = 0;
 
     for (const order of orders) {
@@ -284,7 +284,7 @@ async function generateExcel(orders, res) {
         });
 
 
-        totalSale += order.totalPrice;
+        // totalSale += order.totalPrice;
         totalOrders++;
     }
 
@@ -347,13 +347,20 @@ const salesChart = async (req,res)=>{
         // Aggregate data by month
         orders.forEach(order => {
             const month = order.createdAt.getMonth();
-            salesData[month]++;
+            // salesData[month]++;
             revenueData[month] += order.totalPrice;
             for(product of order.products){
                 productsData[month] += product.quantity;
 
             }
         });
+
+        const allOrders = await orderSchema.find({})
+
+        allOrders.forEach(order => {
+            const month = order.createdAt.getMonth();
+            salesData[month]++
+        })
 
         // Send data to frontend
         res.json({

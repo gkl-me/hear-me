@@ -2,6 +2,8 @@ const orderSchema = require('../../model/order.modal')
 const walletSchema = require('../../model/wallet.modal')
 const productSchema = require('../../model/product.model')
 const Razorpay = require('razorpay')
+const PDFDocument = require('pdfkit')
+const fs  = require('fs')
 
 const razorpay = new Razorpay({
     key_id: 'rzp_test_AIcpmo1LwYwWKt',
@@ -227,5 +229,98 @@ const orderDetails = async (req,res)=>{
 
 }
 
+const downloadInvoice = async (req, res) => {
+    try {
+        const order = await orderSchema.findById(req.params.id).populate('products.productId');
 
-module.exports = {order,cancelOrder,returnOrder,orderSucces,orderFailure,retryPayment,removeOrder,retryRazorPay,orderDetails}
+        const doc = new PDFDocument();
+        
+        res.setHeader('Content-Disposition', `attachment; filename=invoice_${order._id}.pdf`);
+        res.setHeader('Content-Type', 'application/pdf');
+
+        doc.pipe(res);
+
+        // Header
+        doc.fontSize(16)
+           .text('HEAR ME', 50, 50)
+           .fontSize(10)
+           .text('Your Company Address', 50, 70)
+           .text('City, State ZIP', 50, 85)
+           .fontSize(20)
+           .fontSize(10)
+        
+        doc.fontSize(16)
+            .text('Invoice', 250, 50, { align: 'center' })
+
+        // Invoice details
+        doc.fontSize(10)
+           .text(`INVOICE NO #: ${order._id}`, 50, 120)
+
+        // Billing Info
+        doc.text('BILL TO:', 50, 180)
+           .text(order.contactInfo.name, 50, 195)
+           .text(order.contactInfo.email, 50, 210)
+           .text(order.contactInfo.phone, 50, 225)
+           .text('SHIP TO:', 300, 180)
+           .text(order.address.addressLine, 300, 195) // Adjust based on your address structure
+           .text(order.address.city, 300, 210) // Adjust based on your address structure
+           .text(order.address.state, 300, 225); // Adjust based on your address structure
+
+        // Table header
+        doc.moveTo(50, 260).lineTo(550, 260).stroke();
+        doc.text('Product', 50, 270)
+           .text('Qty', 300, 270)
+           .text('Unit Price', 370, 270)
+           .text('Amount', 470, 270);
+        doc.moveTo(50, 285).lineTo(550, 285).stroke();
+
+        // Table content
+        let y = 300;
+        order.products.forEach((item) => {
+            doc.text(item.productId.productName, 50, y)
+               .text(item.quantity.toString(), 300, y)
+               .text(`${item.price.toFixed(2)}`, 370, y)
+               .text(`${(item.quantity * item.price).toFixed(2)}`, 470, y);
+            y += 20;
+        });
+        doc.moveTo(50, y).lineTo(550, y).stroke();
+
+        // Totals
+        const subtotal = order.products.reduce((sum, item) => sum + (item.quantity * item.price), 0);
+        const discountMrp = order.products.reduce((sum, item) => sum + (item.discountMrp * item.quantity), 0);
+        const couponDiscount = order.couponDiscount;
+        // const total = subtotal - discountMrp - couponDiscount;
+
+        y += 20;
+        doc.text('Sub Total', 370, y)
+           .text(`${subtotal.toFixed(2)}`, 470, y);
+        y += 20;
+        doc.text('Discount in MRP', 370, y).fillColor('red')
+           .text(`-${(subtotal-discountMrp).toFixed(2)}`, 470, y);
+        y += 20;
+        doc.text('Coupon Discount', 370, y).fillColor('red')
+           .text(`${couponDiscount.toFixed(2)}`, 470, y);
+        y += 20;
+        doc.rect(370, y, 180, 25).fill('#800000');
+        doc.fillColor('#FFFFFF')
+           .text('Total', 380, y + 7)
+           .text(`${order.totalPrice.toFixed(2)}`, 470, y + 7);
+
+        // Payment Method
+        doc.fillColor('#000000')
+           .text(`Payment Method: ${order.paymentMethod}`, 50, y + 40);
+
+        // Note
+        doc.text('Note:', 50, y + 60)
+           .text('Thank you for your business!', 50, y + 75);
+
+        doc.end();
+
+    } catch (error) {
+        console.log(`Error from download invoice: ${error}`);
+        res.status(500).send('Error generating invoice');
+    }
+};
+
+
+module.exports = {order,cancelOrder,returnOrder,orderSucces,orderFailure,retryPayment,removeOrder,retryRazorPay,orderDetails,downloadInvoice}

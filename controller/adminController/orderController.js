@@ -1,5 +1,6 @@
 const orderSchema = require('../../model/order.modal')
-
+const walletSchema = require('../../model/wallet.modal')
+const productSchema = require('../../model/product.model')
 
 const renderOrder = async (req,res)=>{
 
@@ -63,12 +64,58 @@ const updateStatus = async (req, res) => {
 const returnOrderConfirm = async (req,res)=>{
     try {
         
+
+
         const orderId = req.params.id
 
-        const order = await orderSchema.findByIdAndUpdate(orderId,)
+
+        const order = await orderSchema.findByIdAndUpdate(orderId,{$set: {status: 'returned'}})
+
+        const wallet = await walletSchema.findOne({userId: order.userId})
+
+        let balance = order.totalPrice
+
+        // add the refund amount to wallet 
+
+        if(wallet){
+            wallet.balance += balance;
+            wallet.transaction.push({
+                typeOfPayment: 'credit',
+                amount: balance,
+                date: Date.now(),
+                orderId: order._id,
+            });
+
+            await wallet.save();
+
+        }else{
+
+            const walletNew = new walletSchema({
+                userId,
+                balance,
+                transaction: [{
+                    typeOfPayment: 'credit',
+                    amount: balance,
+                    date:Date.now(),
+                    orderId: order._id,
+                }],
+            });
+
+            await walletNew.save();
+
+        }
+
+        for(product of order.products) {
+            
+            await productSchema.findByIdAndUpdate(product.productId,{$inc :{productQuantity : product.quantity}})
+
+        }
+
+        req.flash('success','Order Successfully returned')
+        res.redirect('/admin/orders')
 
     } catch (error) {
-        console.log(`error from return order confirmation`)
+        console.log(`error from return order confirmation ${error}`)
     }
 }
 

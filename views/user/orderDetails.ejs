@@ -105,7 +105,11 @@
                             <div class="col-lg-6">
                                 <h3 class="h6">Payment Method</h3>
                                 <p><% if(order.paymentMethod === 'razor-pay'){ %>
-                                    status: <%= order.paymentDetail.paymentStatus %>
+                                    status: <% if(order.paymentDetail.paymentStatus==='Pending') {%>
+                                        <span class="text-secondary" >Pending</span>
+                                        <%}else {%>
+                                            <span class="text-success" >Success</span>
+                                            <%} %>
                                 <% }%>
                                 </p>
                                 <p><%= order.paymentMethod %> <br>Total: <%= order.totalPrice %></p>
@@ -142,7 +146,12 @@
                     <div class="card-body">
                         <h3 class="h6">Order Status</h3>
                         <hr>
-                            <span class="status <%=order.status %>" ><%=order.status %></span>
+                            <div class="d-flex justify-content-between">
+                                <span class="status <%=order.status %>"><%=order.status %></span>
+                            <% if(order.status === 'delivered' || order.status === 'returned') {%>
+                                <span class="btn submit-btn" onclick="downloadInvoice(`<%= order.id %>`)"><i class="bi bi-download"></i> Invoice</span>
+                            <% } %>
+                            </div>
                     </div>
                 </div>
                 
@@ -151,5 +160,31 @@
     </div>
 </div>
 
+<script>
+
+    async function downloadInvoice(orderId){
+        try {
+
+            const res = await fetch(`/user/downloadInvoice/${orderId}`)
+            if(!res.ok){
+                throw new Error('Network response was not ok');
+            }
+
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `invoice_${orderId}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url); // Clean up the URL object
+
+        } catch (error) {
+            console.log(`error from  download invoice fetch ${error}`)
+        }
+    }
+
+</script>
 
 <%- include('../admin/adminFooter') %>

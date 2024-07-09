@@ -19,7 +19,7 @@
         <div class="col-md-3">
             <div class="stat-item">
                 <p>Revenue</p>
-                <h2><i class="bi bi-currency-rupee"></i><%= orderTotalPrice[0].totalPrice.toFixed(2) %></h2>
+                <h2><i class="bi bi-currency-rupee"></i><%= orderTotalPrice.length > 0 ? orderTotalPrice[0].totalPrice.toFixed(2) : 0.00 %></h2>
             </div>
         </div>
         <div class="col-md-3">
@@ -31,13 +31,13 @@
         <div class="col-md-3">
             <div class="stat-item">
                 <p>Products Sold</p>
-                <h2><%= orderSummary[0].totalProductQuantity %></h2>
+                <h2><%= orderSummary.length >0 ? orderSummary[0].totalProductQuantity : 0 %></h2>
             </div>
         </div>
         <div class="col-md-3">
             <div class="stat-item">
                 <p>Total Discount</p>
-                <h2><i class="bi bi-currency-rupee"></i><%= (orderSummary[0].totalCouponDiscount + orderSummary[0].totalDiscountedPrice).toFixed(2) %></h2>
+                <h2><i class="bi bi-currency-rupee"></i><%= orderSummary.length > 0? (orderSummary[0].totalCouponDiscount + orderSummary[0].totalDiscountedPrice).toFixed(2) : 0.00 %></h2>
             </div>
         </div>
     </div>
@@ -84,7 +84,7 @@
                 </div>
             </div>
             <div>
-                <button type="button" class="btn btn-primary" id="download-btn">Download</button>
+                <button type="button" class="btn submit-btn" id="download-btn">Download</button>
             </div>
         </div>
     </div>

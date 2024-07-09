@@ -113,12 +113,20 @@ const checkoutProceed = async (req, res) => {
         // Function to apply coupon if applicable
         const applyCoupon = async () => {
             if (couponCode) {
+                if(cart.shippingCharge>0){
+                    Math.round(totalPrice-=100);
+                }
                 const coupon = await couponSchema.findOne({ name: couponCode });
                 const couponUsed = await orderSchema.findOne({ userId, couponCode });
                 if (coupon && !couponUsed) {
                     const discount = coupon.discount / 100;
                     couponDiscount = totalPrice * discount;
                     totalPrice = (totalPrice * (1 - discount)).toFixed(2)
+                    if(totalPrice < 500){
+                        totalPrice = Number(totalPrice)+100;
+                        // console.log(totalPrice)
+                        totalPrice = Math.round(totalPrice  * 100) / 100;
+                    }
                 } else {
                     couponDiscount = 0;
                 }
@@ -214,7 +222,7 @@ const checkoutProceed = async (req, res) => {
         }
 
     } catch (error) {
-        console.log(`Error from checkoutProceed: ${JSON.stringify(error)}`);
+        console.log(`Error from checkoutProceed: ${(error)}`);
         res.status(500).send('Cannot proceed with checkout');
     }
 }
@@ -312,6 +320,9 @@ const applyCoupon = async (req,res)=>{
 
         // total price from cart 
         let totalPrice = cart.totalPrice;
+        if(cart.shippingCharge>0){
+            totalPrice-=100;
+        }
 
         // check if coupon already used
         const alreadyUsed  = await orderSchema.findOne({userId:userId,couponCode:name})
@@ -326,6 +337,9 @@ const applyCoupon = async (req,res)=>{
         const discount = coupon.discount / 100;
         const discountAmount = totalPrice*discount
         totalPrice = totalPrice * (1 - discount);
+        // if(totalPrice < 500){
+        //     totalPrice+=100;
+        // }
 
         res.status(200).json({totalPrice,discountAmount,discount})
 

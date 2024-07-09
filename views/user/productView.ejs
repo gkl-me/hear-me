@@ -36,12 +36,8 @@
                         <span class="text-danger fs-4">Stock Left <%= product.productQuantity %> </span> 
                    <% } %>
 
-                   <div class="rating-star d-flex" >
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star"></i><h5 >(30)</h5>
+                <div id="starRating" class="rating">
+                    <!-- Star ratings will be rendered here -->
                 </div>
             </h1>
             <h3>
@@ -101,6 +97,8 @@
 
 
 </script>
+
+<%- include('showReviews')%>
 
 <%- include('similarProduct') %>
 

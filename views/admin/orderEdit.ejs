@@ -94,6 +94,13 @@
                         <div class="row">
                             <div class="col-lg-6">
                                 <h3 class="h6">Payment Method</h3>
+                                <p><% if(order.paymentMethod === 'razor-pay'){ %>
+                                    status: <% if(order.paymentDetail.paymentStatus==='Pending') {%>
+                                        <span class="text-secondary" >Pending</span>
+                                        <%}else {%>
+                                            <span class="text-success" >Success</span>
+                                            <%} %>
+                                <% }%>
                                 <p><%= order.paymentMethod %> <br>Total: <%= order.totalPrice %></p>
                             </div>
                             <div class="col-lg-6">
@@ -128,12 +135,26 @@
                     <div class="card-body">
                         <% if(order.status === 'returning') {%>
                             <h3>Confirm Order Return</h3>
-                            <p>Confirm order successfully returned</p>
-                            <div>
+                            <small class="text-warning" ><p>Confirm order return</p></small>
+                            <span class="status <%=order.status%>" ><%= order.status %></span>
+                            <div class="mt-3">
                                 <a href="/admin/returnOrder/<%= order.id %>" class="btn submit-btn">Confirm</a>
                                 <a href="/admin/orders" class="btn submit-btn-light">Go Back</a>
                             </div>
-                        <%}else { %>
+                        <%}else if(order.status === 'returned') { %>
+                            <h3>Order Returned</h3>
+                            <small class="text-success"><p>Order successfully returned</p></small>
+                            <span class="status <%=order.status%>" ><%= order.status %></span>
+                        <% } else if(order.status === 'cancelled') { %>
+                            <h3>Order Cancelled</h3>
+                            <small class="text-danger"><p>Order successfully Cancelled</p></small>
+                            <span class="status <%=order.status%>" ><%= order.status %></span>
+                        <% } else if(order.status === 'delivered') { %>
+                            <h3>Order Delivered</h3>
+                            <small class="text-success"><p>Order successfully Delivered</p></small>
+                            <span class="status <%=order.status%>" ><%= order.status %></span>
+
+                        <%  }  else { %>
                             <h3 class="h6">Change Order Status</h3>
                             <form id="orderStatus-form" action="/admin/orders/update/<%=order.id%>" method="post" onsubmit="submitForm(event)" >
                             <div class="mb-3">

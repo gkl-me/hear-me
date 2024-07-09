@@ -116,6 +116,9 @@
 .wallet-checkout:has(#pay-methodoption1:disabled){
     background-color: #f0f0f0;
 }
+.cod-checkout:has(#pay-methodoption3:disabled){
+    background-color: #f0f0f0;
+}
 
 
 
@@ -220,8 +223,8 @@
                                     <img src="../../public/assets/razorpay-icon.svg"alt="" width="100px" height="65px">
                                 </span>
                             </label>
-                            <label class="card-radio-label">
-                                <input type="radio" name="paymentMethod" value="cod" id="pay-methodoption4" class="card-radio-input">
+                            <label class="card-radio-label cod-checkout">
+                                <input type="radio" name="paymentMethod" value="cod" id="pay-methodoption3" class="card-radio-input" <% if (cart.totalPrice > 1000) { %>disabled<% } %>>
                                 <span class="card-radio py-3 text-center text-truncate">
                                     <i class="bi bi-cash d-block h2 mb-3"></i>
                                     COD
@@ -275,7 +278,7 @@
                             <tr>
                                 <th>Discount on MRP</th>
                                 <th></th>
-                                <th class="text-danger">-<i class="bi bi-currency-rupee"></i><span id="discountMrp"><%= (total - cart.totalPrice).toFixed(2) %></span></th>
+                                <th class="text-danger">-<i class="bi bi-currency-rupee"></i><span id="discountMrp"><%= cart.shippingCharge>0? (total - cart.totalPrice + 100).toFixed(2) : (total - cart.totalPrice).toFixed(2) %></span></th>
                             </tr>
                             <tr>
                                 <th>Coupon Discount</th>
@@ -283,9 +286,9 @@
                                 <th class="text-danger">-<i class="bi bi-currency-rupee"></i><span id="discountAmount">0.00</span></th>
                             </tr>
                             <tr>
-                                <th>Shpping Charge</th>
+                                <th>Shipping Charge</th>
                                 <th></th>
-                                <th class="text-success">+<i class="bi bi-currency-rupee"></i><span id="discountAmount"><%=cart.shippingCharge.toFixed(2) %></span></th>
+                                <th class="text-success">+<i class="bi bi-currency-rupee"></i><span id="shippingCharge"><%= cart.shippingCharge.toFixed(2) %></span></th>
                             </tr>
                             
                         </tbody>
@@ -600,8 +603,15 @@
     function updateTotal(total, discount,percent) {
     const totalElement = document.getElementById('totalPriceCheckout');
     const discountElement = document.getElementById('discountAmount');
+    const shippingCharge = document.getElementById('shippingCharge');
     
     if (totalElement && discountElement) {
+        if(total < 500){
+            total+=100;
+            shippingCharge.textContent = '100.00';
+        }else{
+            shippingCharge.textContent = '00.00';
+        }
         totalElement.textContent = total.toFixed(2) 
         discountElement.textContent = `${discount.toFixed(2)} (${percent*100}%)`
     } else {
@@ -616,6 +626,14 @@
         document.getElementById('pay-methodoption1').disabled = true;
         // document.getElementsByClassName("wallet-checkout")[0].style.backgroundColor = '#fefeeb'
     }
+
+    if (total < 1000) {
+        document.getElementById('pay-methodoption3').disabled = false;
+    } else {
+        document.getElementById('pay-methodoption3').disabled = true;
+        // document.getElementsByClassName("wallet-checkout")[0].style.backgroundColor = '#fefeeb'
+    }
+
 }
 
 
