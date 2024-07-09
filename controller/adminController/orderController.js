@@ -60,5 +60,17 @@ const updateStatus = async (req, res) => {
     }
 };
 
+const returnOrderConfirm = async (req,res)=>{
+    try {
+        
+        const orderId = req.params.id
 
-module.exports = {renderOrder,editOrder,updateStatus}
+        const order = await orderSchema.findByIdAndUpdate(orderId,)
+
+    } catch (error) {
+        console.log(`error from return order confirmation`)
+    }
+}
+
+
+module.exports = {renderOrder,editOrder,updateStatus,returnOrderConfirm}

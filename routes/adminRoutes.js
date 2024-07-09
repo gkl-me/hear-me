@@ -67,6 +67,8 @@ admin.get('/orders',isAdmin,orderController.renderOrder)
 admin.get('/orders/edit/:id',isAdmin,orderController.editOrder)
 admin.post('/orders/update/:id',isAdmin,orderController.updateStatus)
 
+admin.get('/returnOrder/:id')
+
 //coupons
 
 admin.get('/coupons',isAdmin,couponController.renderCouponPage)
