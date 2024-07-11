@@ -134,12 +134,13 @@ const retryRazorPay = async (req,res)=>{
 
         const order = await orderSchema.findById(orderId)
 
-        // console.log(order)
+        console.log(order.totalPrice)
+        console.log(typeof order.totalPrice)
 
         // razorpay order created
 
         const razorpayOrder = await razorpay.orders.create({
-            amount: order.totalPrice * 100,
+            amount: Math.round(order.totalPrice * 100),
             currency: "INR",
             receipt: "receipt#1",
         } )
@@ -155,8 +156,8 @@ const retryRazorPay = async (req,res)=>{
         
 
     } catch (error) {
-        console.log(`Error from Razorpay retry: ${error}`);
-        // console.log(`Error from Razorpay retry: ${JSON.stringify(error)}`);
+        // console.log(`Error from Razorpay retry: ${error}`);
+        console.log(`Error from Razorpay retry: ${JSON.stringify(error)}`);
 
     }
 }

@@ -1,6 +1,7 @@
 const productSchema = require('../../model/product.model')
 const collectionSchema = require('../../model/collection.model')
 const wishlistSchema = require('../../model/wishlist.modal')
+const reviewSchema = require('../../model/review.modal')
 const findOffer = require('../../services/findOffer')
 
 
@@ -16,7 +17,13 @@ const home= async (req,res)=> {
             const productDiscount = p.toObject()
             productDiscount.discount = discount
             productDiscount.discountMrp = (p.productPrice * (1- discount/100)).toFixed(2)
-            return productDiscount
+
+             // Aggregate ratings
+             const reviews = await reviewSchema.find({ productId: p._id });
+             const averageRating = reviews.length > 0 ? (reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length).toFixed(1) : 0;
+             productDiscount.averageRating = averageRating;
+ 
+             return productDiscount;
 
         } ))
 
@@ -43,98 +50,95 @@ const home= async (req,res)=> {
 
 }
 
-const explore = async(req,res)=>{
+const explore = async (req, res) => {
     try {
-
-        const userId =req.session.user
+        const userId = req.session.user;
 
         const category = await collectionSchema.find({ isActive: true });
-
         const allCategory = category.map(item => item.collectionName);
-
         const selectedCategory = req.query.collections || allCategory;
-
         const minPrice = parseInt(req.query.minPrice) || 0;
-
         const maxPrice = parseInt(req.query.maxPrice) || 100000;
-
         const productRating = parseInt(req.query.ratings) || 0;
-
         const availability = req.query.availability === 'in-stock' ? { productQuantity: { $gt: 0 } } : {};
-
         const sortOption = req.query.sort || 'latest';
-
         const userSearch = req.query.userSearch || '';
-
         const productsPerPage = 9;
-
         const currentPage = parseInt(req.query.page) || 0;
 
         let query = {
             productName: { $regex: userSearch, $options: 'i' },
             productCollection: { $in: selectedCategory },
             isActive: true,
-            productPrice: { $gte: minPrice, $lte: maxPrice },
             ...availability,
         };
 
-
-        if (productRating > 0) {
-            query.productRating = { $gte: productRating };
-        }
-
-
         let products = await productSchema.find(query);
-        
 
+        // Apply discounts and aggregate ratings
+        const productsWithDiscountsAndRatings = await Promise.all(products.map(async p => {
+            const discount = await findOffer(p._id);
+            const productDiscount = p.toObject();
+            productDiscount.discount = discount;
+            productDiscount.discountMrp = (p.productPrice * (1 - discount / 100)).toFixed(2);
+
+            // Aggregate ratings
+            const reviews = await reviewSchema.find({ productId: p._id });
+            const averageRating = reviews.length > 0 ? (reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length).toFixed(1) : 0;
+            productDiscount.averageRating = averageRating;
+
+            return productDiscount;
+        }));
+
+        // Filter products based on discounted price and ratings
+        const filteredProducts = productsWithDiscountsAndRatings.filter(p => {
+            const discountedPrice = parseFloat(p.discountMrp);
+            return discountedPrice >= minPrice && discountedPrice <= maxPrice && p.averageRating >= productRating;
+        });
+
+        // Sort products
         switch (sortOption) {
             case 'price-high-low':
-                products.sort((a, b) => b.productPrice - a.productPrice);
+                filteredProducts.sort((a, b) => parseFloat(b.discountMrp) - parseFloat(a.discountMrp));
                 break;
             case 'price-low-high':
-                products.sort((a, b) => a.productPrice - b.productPrice);
+                filteredProducts.sort((a, b) => parseFloat(a.discountMrp) - parseFloat(b.discountMrp));
                 break;
             case 'latest':
-                products.sort((a, b) => b.createdAt - a.createdAt);
+                filteredProducts.sort((a, b) => b.createdAt - a.createdAt);
                 break;
             case 'a-z':
-                products.sort((a, b) => a.productName.localeCompare(b.productName));
+                filteredProducts.sort((a, b) => a.productName.localeCompare(b.productName));
                 break;
             case 'z-a':
-                products.sort((a, b) => b.productName.localeCompare(a.productName));
+                filteredProducts.sort((a, b) => b.productName.localeCompare(a.productName));
                 break;
         }
 
         const startIndex = currentPage * productsPerPage;
-        const paginatedProducts = products.slice(startIndex, startIndex + productsPerPage);
+        const paginatedProducts = filteredProducts.slice(startIndex, startIndex + productsPerPage);
 
-        const productsCount = await productSchema.countDocuments(query);
+        const productsCount = filteredProducts.length;
 
-        const wishlist = await wishlistSchema.findOne({userId})
-
-        const productsWithDiscounts = await Promise.all(paginatedProducts.map(async p =>{
-            const discount = await findOffer(p.id)
-            const productDiscount = p.toObject()
-            productDiscount.discount = discount
-            productDiscount.discountMrp = (p.productPrice * (1- discount/100)).toFixed(2)
-            return productDiscount
-
-        } ))
+        const wishlist = await wishlistSchema.findOne({ userId });
 
         res.render('user/explore', {
             title: 'Explore',
-            product: productsWithDiscounts,
+            product: paginatedProducts,
             category,
             user: req.session.user,
             currentPage,
             totalPages: Math.ceil(productsCount / productsPerPage),
-            wishlist
+            wishlist,
+            appliedFilters: req.query // To show applied filters
         });
     } catch (err) {
         console.log(`Error rendering home page: ${err}`);
-        res.status(500).send('Internal Server Error');
+        res.status(500).send(`Internal Server Error ${err}`);
     }
-}
+};
+
+
 
 
 module.exports = {home,explore};

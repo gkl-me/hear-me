@@ -1,24 +1,40 @@
 <!-- Pagination -->
 <nav aria-label="Page navigation example">
-    <ul class="pagination justify-content-center">
+    <ul class="pagination justify-content-center" id="pagination">
         <% if (currentPage > 0) { %>
             <li class="page-item">
-                <a class="page-link" href="?page=<%= currentPage - 1 %>" aria-label="Previous">
+                <a class="page-link" href="#" data-page="<%= currentPage - 1 %>" aria-label="Previous">
                     <span aria-hidden="true">&laquo;</span>
                 </a>
             </li>
         <% } %>
         <% for (let i = 0; i < totalPages; i++) { %>
             <li class="page-item <%= i === currentPage ? 'active' : '' %>">
-                <a class="page-link" href="?page=<%= i %>"><%= i + 1 %></a>
+                <a class="page-link" href="#" data-page="<%= i %>"><%= i + 1 %></a>
             </li>
         <% } %>
         <% if (currentPage < totalPages - 1) { %>
             <li class="page-item">
-                <a class="page-link" href="?page=<%= currentPage + 1 %>" aria-label="Next">
+                <a class="page-link" href="#" data-page="<%= currentPage + 1 %>" aria-label="Next">
                     <span aria-hidden="true">&raquo;</span>
                 </a>
             </li>
         <% } %>
     </ul>
 </nav>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const paginationLinks = document.querySelectorAll('#pagination .page-link');
+        const currentUrlParams = new URLSearchParams(window.location.search);
+    
+        paginationLinks.forEach(link => {
+            link.addEventListener('click', (event) => {
+                event.preventDefault();
+                const page = link.getAttribute('data-page');
+                currentUrlParams.set('page', page);
+                window.location.search = currentUrlParams.toString();
+            });
+        });
+    });
+</script>
+    

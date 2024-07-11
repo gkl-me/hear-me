@@ -28,9 +28,9 @@
     <div class="container d-flex justify-content-between mb-4">
         <h1 class="h3 mb-0 fs-2 website-head"><a href="/user/home">HEAR ME</a></h1>
         <div class="icons d-flex justify-content-between   align-items-center gap-5">
-                <form action="" class="d-flex align-content-center  search-nav">
-                    <input type="text" class="form-input form-control" placeholder="search" autocomplete="off">
-                    <i class="bi bi-search"></i>
+                <form action="/user/explore/" method="get" class="d-flex align-content-center  search-nav">
+                    <input type="text" name="userSearch" class="form-input form-control" placeholder="search" autocomplete="off">
+                    <i class="bi bi-search" id="userSearch"></i>
                 </form>
                 <a class="icons d-flex flex-column align-items-center atag" href="/user/wishlist">
                     <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="#10051F" class="bi bi-heart-fill" viewBox="0 0 16 16">
@@ -118,3 +118,17 @@
 
  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
+<script>
+    
+    // const userSearch = document.querySelectorAll('#userSearch');
+    //     const currentUrlParams = new URLSearchParams(window.location.search);
+    
+    //     userSearch.forEach(link => {
+    //         link.addEventListener('click', (event) => {
+    //             event.preventDefault();
+    //             const page = link.getAttribute('data-page');
+    //             currentUrlParams.set('page', page);
+    //             window.location.search = currentUrlParams.toString();
+    //         });
+    //     });
+</script>

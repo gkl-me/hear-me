@@ -1,5 +1,6 @@
 const productSchema = require('../../model/product.model')
 const wishlistSchema = require('../../model/wishlist.modal');
+const reviewSchema = require('../../model/review.modal')
 const findOffer = require('../../services/findOffer');
 
 const productView = async (req,res)=> {
@@ -17,7 +18,13 @@ const productView = async (req,res)=> {
       const productDiscount = p.toObject()
       productDiscount.discount = discount
       productDiscount.discountMrp = (p.productPrice * (1- discount/100)).toFixed(2)
-      return productDiscount
+      
+       // Aggregate ratings
+       const reviews = await reviewSchema.find({ productId: p._id });
+       const averageRating = reviews.length > 0 ? (reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length).toFixed(1) : 0;
+       productDiscount.averageRating = averageRating;
+
+       return productDiscount;
 
   } ))
 

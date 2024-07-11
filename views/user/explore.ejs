@@ -76,136 +76,101 @@
 
     <div class="filter-panel" id="filter-panel">
         <span class="close-icon" id="close-filter-panel">&times;</span> <!-- Close icon -->
-        <form id="filter-form" method="get" action="/user/explore" >
+        <form id="filter-form" method="get" action="/user/explore">
             <div class="mb-3">
                 <label class="form-label">Collections</label>
                 <div>
-                    <input class="form-check-input" type="checkbox" name="collections" value="Headphones"> Headphones<br>
-                    <input class="form-check-input" type="checkbox" name="collections" value="Earphones"> Earphones<br>
-                    <input class="form-check-input" type="checkbox" name="collections" value="Speakers"> Speakers<br>
+                    <input class="form-check-input" type="checkbox" name="collections" value="Headphones" <%= appliedFilters.collections && appliedFilters.collections.includes('Headphones') ? 'checked' : '' %>> Headphones<br>
+                    <input class="form-check-input" type="checkbox" name="collections" value="Earphones" <%= appliedFilters.collections && appliedFilters.collections.includes('Earphones') ? 'checked' : '' %>> Earphones<br>
+                    <input class="form-check-input" type="checkbox" name="collections" value="Speakers" <%= appliedFilters.collections && appliedFilters.collections.includes('Speakers') ? 'checked' : '' %>> Speakers<br>
                 </div>
             </div>
             <div class="mb-3">
                 <label class="form-label">Price Range</label>
                 <div>
-                    <input class="form-control" type="text" class="form-control" placeholder="Min Price" name="minPrice">
-                    <input class="form-control" type="text" class="form-control" placeholder="Max Price" name="maxPrice">
+                    <input class="form-control" type="text" placeholder="Min Price" name="minPrice" value="<%= appliedFilters.minPrice %>">
+                    <input class="form-control" type="text" placeholder="Max Price" name="maxPrice" value="<%= appliedFilters.maxPrice %>">
                 </div>
             </div>
-            <!-- <div class="mb-3">
+            <div class="mb-3">
                 <label class="form-label">Ratings</label>
                 <div>
-                    <input class="form-check-input" type="checkbox" name="ratings" value="1"> 1 Star<br>
-                    <input class="form-check-input" type="checkbox" name="ratings" value="2"> 2 Stars<br>
-                    <input class="form-check-input" type="checkbox" name="ratings" value="3"> 3 Stars<br>
-                    <input class="form-check-input" type="checkbox" name="ratings" value="4"> 4 Stars<br>
-                    <input class="form-check-input" type="checkbox" name="ratings" value="5"> 5 Stars<br>
+                    <input class="form-check-input" type="checkbox" name="ratings" value="1" <%= appliedFilters.ratings == '1' ? 'checked' : '' %>> 1 Star<br>
+                    <input class="form-check-input" type="checkbox" name="ratings" value="2" <%= appliedFilters.ratings == '2' ? 'checked' : '' %>> 2 Stars<br>
+                    <input class="form-check-input" type="checkbox" name="ratings" value="3" <%= appliedFilters.ratings == '3' ? 'checked' : '' %>> 3 Stars<br>
+                    <input class="form-check-input" type="checkbox" name="ratings" value="4" <%= appliedFilters.ratings == '4' ? 'checked' : '' %>> 4 Stars<br>
+                    <input class="form-check-input" type="checkbox" name="ratings" value="5" <%= appliedFilters.ratings == '5' ? 'checked' : '' %>> 5 Stars<br>
                 </div>
-            </div> -->
+            </div>
             <div class="mb-3">
                 <label class="form-label">Availability</label>
                 <div>
-                    <input class="form-check-input" type="checkbox" name="availability" value="in-stock"> In Stock<br>
+                    <input class="form-check-input" type="checkbox" name="availability" value="in-stock" <%= appliedFilters.availability === 'in-stock' ? 'checked' : '' %>> In Stock<br>
                 </div>
             </div>
             <button type="submit" class="btn btn-primary" id="apply-filters">Apply Filters</button>
         </form>
+        
     </div>
     
 
-    <div class="row mt-5 mx-auto ms-5 ">
+    <div class="row mt-5 mx-auto ms-5">
         <% product.forEach(function(item) { %>
             <div class="col-md-4 mb-5">
-                <% if(item.productQuantity === 0){ %>
-                    <div class="product-card d-flex flex-column justify-content-start">
-                        <a href="/user/product/<%= item._id %>" class="image-card position-relative atag">
-                            <img src="../../<%= item.productImage[0] %>" alt="">
+                <div class="product-card d-flex flex-column justify-content-start">
+                    <a href="/user/product/<%= item._id %>" class="image-card position-relative atag">
+                        <img src="../../<%= item.productImage[0] %>" alt="">
+                        <% if(item.productQuantity === 0) { %>
                             <div class="image-card position-absolute opacity-50 bg-black">
                                 <h4 class="text-white">Out of stock</h4>
                             </div>
-                        </a>
-                        <div class="d-flex justify-content-start gap-5 align-items-center">
-                            <div>
-                                <h5 class="title-container mt-3"><%= item.productName %></h5>
-                                <h5><i class="bi bi-currency-rupee"></i><%= item.productPrice %></h5>
-                            </div>
-                            <div class="mt-3 ">
-                                <!-- <div class="rating-star">
-                                    <i class="bi bi-star-fill"></i>
-                                    <i class="bi bi-star-fill"></i>
-                                    <i class="bi bi-star-fill"></i>
-                                    <i class="bi bi-star-fill"></i>
-                                    <i class="bi bi-star"></i>(30)
-                                </div> -->
-                                <div class="d-flex gap-2 align-items-center">
-                                    <a onclick="addToCart('<%= item._id %>','<%= user %>')" class="btn submit-btn">Add to Cart</a>
-                                    <% if(user && wishlist && wishlist.products.some(product => product.productId.toString() === item._id.toString() )) { %>
-                                    <span class="wishlist-heart" id="wishlist-heart">
-                                         <i class="bi bi-heart-fill"  onclick="addToWishlist('<%= item._id %>','<%= user %>',this)"></i>
-                                    </span>
-                                    <% }else{ %>
-                                        <span class="wishlist-heart" id="wishlist-heart">
-                                            <i class="bi bi-heart" onclick="addToWishlist('<%= item._id %>','<%= user %>',this)"></i>
-                                       </span>
-                                    <% } %>
-
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                <% } else { %>
-                    <div class="product-card d-flex flex-column justify-content-start">
-                        <a href="/user/product/<%= item._id %>" class="image-card atag">
-                            <img src="../../<%= item.productImage[0] %>" alt="">
-                            <% if(item.discount) {%>
-                                <span class="discount-tag"><%= item.discount%>% OFF</span>
-                                <% } %>
-                        </a>
-                        <div class="d-flex justify-content-start gap-5 align-items-center">
-                            <div>
-                                <h5 class="title-container mt-3"><%= item.productName %></h5>
-                                <span class="fs-6">
-                                    <% if (item.discount && item.discountMrp < item.productPrice) { %>
-                                        <div>
-                                            <span class="text-muted text-decoration-line-through">
-                                                <i class="bi bi-currency-rupee"></i><%= item.productPrice %>
-                                            </span>
-                                            <i class="bi bi-currency-rupee"></i><%= item.discountMrp %>
-                                        </div>
-                                        <span class="text-danger">(<%= item.discount %>% off)</span>
-                                    <% }else{ %>
-                                    <span><i class="bi bi-currency-rupee"></i><%= item.productPrice %></span>
-                                    <% } %>
-                                    </span>
-                            </div>
-                            <div class="mt-3">
-                                <!-- <div class="rating-star">
-                                    <i class="bi bi-star-fill"></i>
-                                    <i class="bi bi-star-fill"></i>
-                                    <i class="bi bi-star-fill"></i>
-                                    <i class="bi bi-star-fill"></i>
-                                    <i class="bi bi-star"></i>(30)
-                                </div> -->
-                                <div class="d-flex gap-2 align-items-center">
-                                    <a onclick="addToCart('<%= item._id %>','<%= user %>')" class="btn submit-btn">Add to Cart</a>
-                                    <% if(user && wishlist && wishlist.products.some(product => product.productId.toString() === item._id.toString() )) { %>
-                                        <span class="wishlist-heart" id="wishlist-heart">
-                                             <i class="bi bi-heart-fill"  onclick="addToWishlist('<%= item._id %>','<%= user %>',this)"></i>
+                        <% } %>
+                        <% if(item.discount) { %>
+                            <span class="discount-tag"><%= item.discount %>% OFF</span>
+                        <% } %>
+                    </a>
+                    <div class="d-flex justify-content-start gap-5 align-items-center">
+                        <div>
+                            <h5 class="title-container mt-3"><%= item.productName %></h5>
+                            <span class="fs-6">
+                                <% if (item.discount && item.discountMrp < item.productPrice) { %>
+                                    <div>
+                                        <span class="text-muted text-decoration-line-through">
+                                            <i class="bi bi-currency-rupee"></i><%= item.productPrice %>
                                         </span>
-                                        <% }else{ %>
-                                            <span class="wishlist-heart" id="wishlist-heart">
-                                                <i class="bi bi-heart" onclick="addToWishlist('<%= item._id %>','<%= user %>',this)"></i>
-                                           </span>
-                                        <% } %>
-                                </div>
+                                        <i class="bi bi-currency-rupee"></i><%= item.discountMrp %>
+                                    </div>
+                                    <span class="text-danger">(<%= item.discount %>% off)</span>
+                                <% } else { %>
+                                    <span><i class="bi bi-currency-rupee"></i><%= item.productPrice %></span>
+                                <% } %>
+                            </span>
+                        </div>
+                        <div class="mt-3">
+                            <div class="rating-star">
+                                <% for (let i = 1; i <= 5; i++) { %>
+                                    <i class="bi <%= i <= item.averageRating ? 'bi-star-fill' : 'bi-star' %>"></i>
+                                <% } %>
+                                (<%= item.averageRating %>)
+                            </div>
+                            <div class="d-flex gap-2 align-items-center">
+                                <a onclick="addToCart('<%= item._id %>','<%= user %>')" class="btn submit-btn">Add to Cart</a>
+                                <% if(user && wishlist && wishlist.products.some(product => product.productId.toString() === item._id.toString() )) { %>
+                                    <span class="wishlist-heart" id="wishlist-heart">
+                                        <i class="bi bi-heart-fill" onclick="addToWishlist('<%= item._id %>','<%= user %>',this)"></i>
+                                    </span>
+                                <% } else { %>
+                                    <span class="wishlist-heart" id="wishlist-heart">
+                                        <i class="bi bi-heart" onclick="addToWishlist('<%= item._id %>','<%= user %>',this)"></i>
+                                    </span>
+                                <% } %>
                             </div>
                         </div>
                     </div>
-                <% } %>
+                </div>
             </div>
         <% }); %>
     </div>
-
     <%- include('pagination') %>
 
 </div>

@@ -40,7 +40,7 @@
         <div class="mb-6">
             <div class="d-flex justify-content-center flex-column align-items-center mb-2">
                 <h4 class="mb-3">Customer reviews</h4>
-                <div id="starRating" class="rating">
+                <div id="starRating" class="rating d-flex">
                     <!-- Star ratings will be rendered here -->
                 </div>
                 <span id="averageRating" class="h5 ms-2"></span>
@@ -115,13 +115,13 @@
                 document.getElementById('oneStar').style.width = `${data.ratingPercentages[0]}%`;
                 document.getElementById('oneStarPercentage').textContent = `${data.ratingPercentages[0]}%`;
 
-                renderStars(data.averageRating)
+                renderStars(data.averageRating,data.totalRatings)
             })
             .catch(error => console.log('Error fetching ratings:', error));
     }
 
    
-    function renderStars(averageRating) {
+    function renderStars(averageRating,totalRatings) {
     const starRatings = document.querySelectorAll('#starRating');
     starRatings.forEach(starRating => {
         starRating.innerHTML = ''
@@ -138,6 +138,7 @@
     for (let i = Math.ceil(averageRating); i < 5; i++) {
         starRating.innerHTML += '<i class="bi bi-star"></i>';
     }
+    starRating.innerHTML += `<h5>(${totalRatings})</h5>`
     } )
 }
 
