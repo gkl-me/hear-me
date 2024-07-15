@@ -30,6 +30,17 @@ const cancelOrder = async (req,res)=>{
         const orderId = req.params.id
         const userId = req.session.user
 
+        let orderStatus = await orderSchema.findById(orderId)
+
+        if(orderStatus.status === 'returning'){
+            const order = await orderSchema.findByIdAndUpdate(orderId, { status: 'delivered'})
+
+            if(order){
+                req.flash('success','Return order cancelled')
+                return res.redirect('/user/orders')
+            }
+        }
+
         const order = await orderSchema.findByIdAndUpdate(orderId, { status: 'cancelled'})
         let balance = (order.totalPrice - (order.couponAmount || 0))
 

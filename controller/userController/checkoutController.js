@@ -249,19 +249,25 @@ const paymentFailed = async (req,res)=>{
     const orderProducts =  JSON.parse(JSON.stringify(cart.products))
 
     // check if coupon code is applied
-    if(couponCode){
-        const coupon = await couponSchema.findOne({name:couponCode})
-        // check if coupon already used
-        const couponUsed = await orderSchema.findOne({userId,couponCode})
-        if(couponUsed){
-            couponDiscount =0 ;
-        }else{
-            //find discount amount
-            const discount = (coupon.discount / 100)
-            couponDiscount = totalPrice*discount;
-            totalPrice = totalPrice * (1 - discount);
+    if (couponCode) {
+        if(cart.shippingCharge>0){
+            Math.round(totalPrice-=100);
         }
-    }else{
+        const coupon = await couponSchema.findOne({ name: couponCode });
+        const couponUsed = await orderSchema.findOne({ userId, couponCode });
+        if (coupon && !couponUsed) {
+            const discount = coupon.discount / 100;
+            couponDiscount = totalPrice * discount;
+            totalPrice = (totalPrice * (1 - discount)).toFixed(2)
+            if(totalPrice < 500){
+                totalPrice = Number(totalPrice)+100;
+                // console.log(totalPrice)
+                totalPrice = Math.round(totalPrice  * 100) / 100;
+            }
+        } else {
+            couponDiscount = 0;
+        }
+    } else {
         couponCode = '';
     }
 
