@@ -536,6 +536,24 @@
 
 <script>
 
+
+// Store active tab in local storage
+    const tabLinks = document.querySelectorAll('#order-menu a.nav-link');
+        tabLinks.forEach(link => {
+            link.addEventListener('shown.bs.tab', function (e) {
+                localStorage.setItem('activeTab', e.target.id);
+            });
+        });
+
+        // Retrieve active tab from local storage
+        const activeTab = localStorage.getItem('activeTab');
+        if (activeTab) {
+            const activeTabEl = document.getElementById(activeTab);
+            const tab = new bootstrap.Tab(activeTabEl);
+            tab.show();
+        }
+
+
     const orderCancel = document.querySelectorAll('#cancelOrder').forEach((btn)=>{
         btn.addEventListener('click',function(){
             const orderId = this.getAttribute('data-id');
