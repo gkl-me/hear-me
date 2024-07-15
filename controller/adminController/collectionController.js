@@ -5,9 +5,33 @@ const collection = async (req,res)=>{
     try {
         
         const search = req.query.search || "" ;
-        const collection = await  collectionSchema.find({collectionName: {$regex : search, $options: 'i'}})
+        const page = parseInt(req.query.page) || 0;
+        const limit = 9;
+        const filter = req.query.filter || 'all'
 
-        res.render('admin/collection',{title: "Collection",collection})
+
+        let filterQuery = {collectionName: {$regex : search, $options: 'i'}}
+        if(filter==='active'){
+            filterQuery.isActive=true;
+        }else if(filter === 'blocked'){
+            filterQuery.isActive=false;
+        }
+
+        const collection = await collectionSchema.find(filterQuery)
+            .sort({createdAt: -1})
+            .skip(page*limit)
+            .limit(limit)
+        
+        const totalCollection = await collectionSchema.countDocuments(filterQuery);
+        const totalPages = Math.ceil(totalCollection/limit)
+
+        res.render('admin/collection',{title: "Collection",
+            collection,
+            currentPage: page,
+            totalPages,
+            search,
+            filter
+        })
 
     } catch (error) {
         console.log(`error from collection ${error}`)

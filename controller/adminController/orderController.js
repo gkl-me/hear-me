@@ -6,9 +6,31 @@ const renderOrder = async (req,res)=>{
 
     try {
 
-        const order = await orderSchema.find().populate('products.productId').populate('userId')
+        const { status = 'all', page = 0, limit = 10 } = req.query;
+        const query = {};
 
-        res.render('admin/orders',{title:'Order',order})
+        if (status !== 'all') {
+            query.status = status;
+        }
+
+        const totalOrders = await orderSchema.countDocuments(query);
+        const totalPages = Math.ceil(totalOrders / limit);
+
+        const orders = await orderSchema.find(query)
+            .populate('products.productId')
+            .populate('userId')
+            .sort({updatedAt: -1})
+            .skip(page * limit)
+            .limit(limit);
+
+            res.render('admin/orders', {
+                title: 'Order',
+                order:orders,
+                currentPage: parseInt(page),
+                totalPages,
+                limit: parseInt(limit),
+                status
+            });
 
     } catch (error) {
         console.log(`error from order ${error}`)

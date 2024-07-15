@@ -5,10 +5,27 @@ const users = async (req,res)=> {
 
     try {
         
-        const search = req.query.search || ''
-        const user = await userSchema.find({name: {$regex: search, $options: 'i'}})
+        const search = req.query.search || "" ;
+        const page = parseInt(req.query.page) || 0;
+        const limit = 8;
 
-        res.render('admin/user',{title: 'Customers',user})
+        const filterQuery = {name: {$regex: search, $options: 'i'}}
+
+        const user = await userSchema.find(filterQuery)
+            .sort({updatedAt: -1})
+            .skip(page*limit)
+            .limit(limit)
+
+        const totalUser = await userSchema.countDocuments(filterQuery);
+        const totalPages = Math.ceil(totalUser/limit)
+
+        res.render('admin/user',{title: 'Customers',
+            user,
+            totalPages,
+            currentPage:page,
+            search,
+            limit
+        })
 
     } catch (error) {
         console.log(`Error while loading user in admin ${error}`)

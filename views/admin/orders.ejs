@@ -2,12 +2,26 @@
 
 <div class="container mb-5">
     <div class="search-container d-flex justify-content-between">
-        <div class="d-flex justify-content-between align-items-center gap-2">
-            <h2><%= title %></h2>
-            <form action="/admin/orders" method="get" class="form  d-flex gap-1">
-                <input type="text" name="search" placeholder="search" class="form-input form-control">
-                <input type="submit" class="btn submit-btn" value="Search">
-            </form>
+        <div class="d-flex justify-content-between gap-5">
+            <div class="d-flex flex-row justify-content-between align-items-center gap-2">
+                <h2><%= title %></h2>
+                <form action="/admin/orders" method="get" class="form  d-flex gap-1">
+                    <input type="text" name="search" placeholder="search" class="form-input form-control">
+                    <input type="submit" class="btn submit-btn" value="Search">
+                </form>
+            </div>
+            <div>
+                <label for="statusFilter" class="form-label">Status</label>
+                <select id="statusFilter" class="form-select">
+                    <option value="all" <%= status === 'all' ? 'selected' : '' %>>All</option>
+                    <option value="delivered" <%= status === 'delivered' ? 'selected' : '' %>>Delivered</option>
+                    <option value="cancelled" <%= status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+                    <option value="processing" <%= status === 'processing' ? 'selected' : '' %>>Processing</option>
+                    <option value="shipped" <%= status === 'shipped' ? 'selected' : '' %>>Shipped</option>
+                    <option value="returned" <%= status === 'returned' ? 'selected' : '' %>>Returned</option>
+                    <option value="returning" <%= status === 'returning' ? 'selected' : '' %>>Returning</option>
+                </select>
+            </div>
         </div>
     </div>
     <div class="table-container">
@@ -28,7 +42,7 @@
                 <% order.forEach((order,index)=> { %>
 
                 <tr scope="row">
-                    <td><%= index+1 %></td>
+                    <td><%= (currentPage * limit) + index + 1 %></td>
                     <td><%= order.id %></td>
                     <td><%= order.userId.name %></td>
                     <td><i class="bi bi-currency-rupee"></i><%= order.totalPrice %></td>
@@ -46,5 +60,16 @@
     </div>
 </div>
 
+
+<script>
+    document.getElementById('statusFilter').addEventListener('change', (e) => {
+        const status = e.target.value;
+        const currentUrlParams = new URLSearchParams(window.location.search);
+        currentUrlParams.set('status', status);
+        window.location.search = currentUrlParams.toString();
+    });
+</script>
+
+<%- include('../user/pagination') %>
 
 <%- include('adminFooter') %>

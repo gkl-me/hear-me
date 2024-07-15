@@ -8,11 +8,36 @@ const product = async (req,res) => {
 
     try {
         
-        const search = req.query.search || "";
+        const search = req.query.search || "" ;
+        const page = parseInt(req.query.page) || 0;
+        const limit = 8;
+        const filter = req.query.filter || 'all'
 
-        const products = await productSchema.find({productName: {$regex: search, $options: 'i'}})
+        let filterQuery = {productName: {$regex : search, $options: 'i'}}
+        if(filter==='active'){
+            filterQuery.isActive=true;
+        }else if(filter === 'blocked'){
+            filterQuery.isActive=false;
+        }
 
-        res.render('admin/products',{title: 'Products',products})
+        const products = await productSchema.find(filterQuery)
+            .sort({updatedAt: -1})
+            .skip(page*limit)
+            .limit(limit)
+        
+        const totalProducts = await productSchema.countDocuments(filterQuery);
+        const totalPages = Math.ceil(totalProducts/limit)
+
+
+        res.render('admin/products',{title: 'Products',
+            products,
+            totalPages,
+            currentPage:page,
+            search,
+            filter,
+            limit
+
+        })
 
     } catch (error) {
         console.log(`error from product page ${error}`)

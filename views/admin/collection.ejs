@@ -5,9 +5,17 @@
         <div class="d-flex justify-content-between align-items-center gap-2">
             <h2><%= title %></h2>
             <form action="/admin/collection" method="get" class="form  d-flex gap-1">
-                <input type="text" name="search" placeholder="search" class="form-input form-control">
+                <input type="text" name="search" placeholder="search" value="<%= search %>" class="form-input form-control">
                 <input type="submit" class="btn submit-btn" value="Search">
             </form>
+        </div>
+        <div class="sort-container">
+            <label for="filter" class="form-label">Status</label>
+            <select id="filter" class="form-select">
+                <option value="all" <%= filter === 'all' ? 'selected' : '' %>>All</option>
+                <option value="active" <%= filter === 'active' ? 'selected' : '' %>>Active</option>
+                <option value="blocked" <%= filter === 'blocked' ? 'selected' : '' %>>Blocked</option>
+            </select>
         </div>
         <button type="button" class="btn submit-btn" data-bs-toggle="modal" data-bs-target="#addCollection">+ Add Collection</button>
     </div>
@@ -124,8 +132,15 @@
 
     })
 
+    document.getElementById('filter').addEventListener('change', (e) => {
+        const filter = e.target.value;
+        const currentUrlParams = new URLSearchParams(window.location.search);
+        currentUrlParams.set('filter', filter);
+        window.location.search = currentUrlParams.toString();
+    });
+
 </script>
 
-
+<%- include('../user/pagination') %>
 
 <%- include('adminFooter') %>

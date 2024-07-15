@@ -9,6 +9,14 @@
                 <input type="submit" class="btn submit-btn" value="Search">
             </form>
         </div>
+        <div class="sort-container">
+            <label for="filter" class="form-label">Status</label>
+            <select id="filter" class="form-select">
+                <option value="all" <%= filter === 'all' ? 'selected' : '' %>>All</option>
+                <option value="active" <%= filter === 'active' ? 'selected' : '' %>>Active</option>
+                <option value="blocked" <%= filter === 'blocked' ? 'selected' : '' %>>Blocked</option>
+            </select>
+        </div>
         <a href="/admin/addproduct" type="button" class="btn submit-btn">+ Add Product</a>
     </div>
     <div class="table-container">
@@ -29,7 +37,7 @@
                 <% products.forEach((product,index)=> { %>
 
                 <tr scope="row">
-                    <td><%= index+1 %></td>
+                    <td><%= (currentPage * limit) + index + 1 %></td>
                     <td><%= product.productName %></td>
                     <td><%= product.productPrice %></td>
                     <td><%= product.productQuantity %></td>
@@ -52,6 +60,17 @@
         </table>
     </div>
 </div>
+
+<%- include('../user/pagination') %>
+
+<script>
+    document.getElementById('filter').addEventListener('change', (e) => {
+        const filter = e.target.value;
+        const currentUrlParams = new URLSearchParams(window.location.search);
+        currentUrlParams.set('filter', filter);
+        window.location.search = currentUrlParams.toString();
+    });
+</script>
 
 
 <%- include('adminFooter') %>
