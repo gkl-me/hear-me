@@ -144,63 +144,55 @@
                                 <div class="col-lg-4">
                                     <div class="mb-3">
                                         <label class="form-label" for="billing-name">Name</label>
-                                        <input type="text" class="form-control" id="billing-name" name="name" placeholder="Enter name" required>
+                                        <input type="text" class="form-control" id="billing-name" name="name" placeholder="Enter name" >
                                     </div>
                                 </div>
                                 <div class="col-lg-4">
                                     <div class="mb-3">
                                         <label class="form-label" for="billing-email-address">Email Address</label>
-                                        <input type="email" class="form-control" id="billing-email-address" name="email" placeholder="Enter email" required>
+                                        <input type="email" class="form-control" id="billing-email-address" name="email" placeholder="Enter email" >
                                     </div>
                                 </div>
                                 <div class="col-lg-4">
                                     <div class="mb-3">
                                         <label class="form-label" for="billing-phone">Phone</label>
-                                        <input type="text" class="form-control" id="billing-phone" name="phone" placeholder="Enter Phone no." required>
+                                        <input type="text" class="form-control" id="billing-phone" name="phone" placeholder="Enter Phone no." >
                                     </div>
                                 </div>
                             </div>
                     </li>
-                    <li class="checkout-item" data-step='2'>
-                        <div class="avatar checkout-icon p-1">
-                            <div class="avatar-title rounded-circle bg-primary">
-                                <i class="bi bi-truck text-white font-size-20"></i>
-                            </div>
+                     <!-- Shipping Info -->
+                   <li class="checkout-item" data-step='2'>
+                    <div class="avatar checkout-icon p-1">
+                        <div class="avatar-title rounded-circle bg-primary">
+                            <i class="bi bi-truck text-white font-size-20"></i>
                         </div>
-                        <h5 class="font-size-16 mb-1">Shipping Info</h5>
-                        <div class="row">
-
-                            <% user.address.forEach((elem,index) => { %>
-
-                            <div class="col-lg-4 col-sm-6">
-                                <label class="card-radio-label mb-0 position-relative">
-                                    <input type="radio" name="address" value='<%= elem %>'' id="info-address1" class="card-radio-input">
-                                    <div class="card-radio text-truncate p-3">
-                                        <span class="fs-14 mb-4 d-block"><%= elem.addressType %></span>
-                                        <span class="text-muted fw-normal text-wrap mb-1 d-block"><%= elem.addressLine%></span>
-                                        <span class="text-muted fw-normal text-wrap mb-1 d-block"><%= elem.city%></span>
-                                        <span class="text-muted fw-normal text-wrap mb-1 d-block"><%= elem.state%></span>
-                                        <span class="text-muted fw-normal d-block"><%= elem.pincode%></span>
-                                    </div>
-                                    <div class="edit-btn bg-light rounded">
-                                        <a onclick='deleteAddress(`<%= index %>`)' >
-                                            <i class="bi bi-trash font-size-16"></i>
-                                        </a>
-                                    </div>
-                                </label>
-                            </div>
-
-                            <% }) %>
-
-                            <div class="col-lg-4 col-sm-6">
-                                <div class="add-btn bg-light rounded">
-                                    <a href="#" data-bs-toggle="modal" data-bs-target="#addAddressModal" title="Add">
-                                        <i class="bi bi-plus font-size-16"></i>
-                                    </a>
+                    </div>
+                    <h5 class="font-size-16 mb-3">Shipping Info</h5>
+                    <div class="row address-options">
+                        <% user.address.forEach((elem,index) => { %>
+                        <div class="col-md-6 col-sm-12 mb-3">
+                            <label class="card-radio-label mb-0">
+                                <input type="radio" name="address" value='<%= elem %>' id="info-address<%= index %>" class="card-radio-input">
+                                <div class="card-radio p-3">
+                                    <h6 class="mb-2"><%= elem.addressType %></h6>
+                                    <p class="text-muted mb-0"><%= elem.addressLine %>, <%= elem.city %>, <%= elem.state %> - <%= elem.pincode %></p>
+                                    <button type="button" onclick='deleteAddress(`<%= index %>`)' class="btn btn-sm btn-outline-danger mt-2">
+                                        <i class="bi bi-trash"></i> Delete
+                                    </button>
                                 </div>
+                            </label>
+                        </div>
+                        <% }) %>
+                        <div class="col-md-6 col-sm-12 mb-3">
+                            <div class="add-address-card">
+                                <button type="button" class="btn btn-outline-primary w-100 h-100" data-bs-toggle="modal" data-bs-target="#addAddressModal">
+                                    <i class="bi bi-plus-lg"></i> Add New Address
+                                </button>
                             </div>
                         </div>
-                    </li>
+                    </div>
+                </li>
                     <li class="checkout-item" data-step="3">
                         <div class="avatar checkout-icon p-1">
                             <div class="avatar-title rounded-circle bg-primary">
@@ -355,7 +347,7 @@
                     <label for="pincode" class="form-label">Pincode</label>
                     <input type="text" class="form-control" id="pincode" name="pincode">
                 </div>
-                <button  type="submit" class="btn btn-primary">Add Address</button>
+                <button  type="button" class="btn btn-primary">Add Address</button>
             </form>
         </div>
     </div>
@@ -372,6 +364,7 @@
 
 
     async function deleteAddress(index){
+
 
         try {
 
