@@ -254,7 +254,7 @@ const paymentFailed = async (req,res)=>{
             Math.round(totalPrice-=100);
         }
         const coupon = await couponSchema.findOne({ name: couponCode });
-        const couponUsed = await orderSchema.findOne({ userId, couponCode });
+        const couponUsed = await orderSchema.findOne({ userId, couponCode, status: { $in: ['delivered', 'returned', 'returning'] }});
         if (coupon && !couponUsed) {
             const discount = coupon.discount / 100;
             couponDiscount = totalPrice * discount;
@@ -331,7 +331,7 @@ const applyCoupon = async (req,res)=>{
         }
 
         // check if coupon already used
-        const alreadyUsed  = await orderSchema.findOne({userId:userId,couponCode:name})
+        const alreadyUsed  = await orderSchema.findOne({userId:userId,couponCode:name,status: { $in: ['delivered', 'returned', 'returning'] }})
         // const alreadyUsed = coupon.appliedUser.includes(userId);
 
         // if already used return an error

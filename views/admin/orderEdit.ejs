@@ -102,6 +102,11 @@
                                             <%} %>
                                 <% }%>
                                 <p><%= order.paymentMethod %> <br>Total: <%= order.totalPrice %></p>
+                                <% if(order.couponCode && (order.status==='delivered' || order.status==='returned' || order.status==='returning' || order.status==='shipped' ) ) {%>
+                                    <p>
+                                        Coupon Code: <small class="text-success"><%= order.couponCode %></small>
+                                    </p>
+                                        <%}%>
                             </div>
                             <div class="col-lg-6">
                                 <h3 class="h6">Billing address</h3>
