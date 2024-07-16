@@ -1,178 +1,349 @@
 <%- include('adminNav') %>
 
 <style>
-
-    .imageToCrop img{
-        width: 100%;
-        display: block;
-    }
-
+  .imageToCrop img {
+    width: 100%;
+    display: block;
+  }
+  .error-message {
+    color: red;
+  }
 </style>
 
 <div class="container container-add-products">
-    <div class="add-products">
-        <form action="/admin/addproduct" method="post" enctype="multipart/form-data" id="add-product-form">
-            <div class="row d-flex justify-content-center align-content-center ">
-                <div class="col-6">
-                    <label class="form-label " for="productName">Product Name</label>
-                    <input class="form-control form-input " type="text" name="productName" id="productName" required>
+  <div class="add-products">
+    <form
+      action="/admin/addproduct"
+      method="post"
+      enctype="multipart/form-data"
+      id="add-product-form"
+    >
+      <div class="row d-flex justify-content-center align-content-center">
+        <div class="col-6">
+          <label class="form-label" for="productName">Product Name</label>
+          <input
+            class="form-control form-input"
+            type="text"
+            name="productName"
+            id="productName"
+          />
+          <span id="productNameError" class="error-message"></span>
 
+          <br />
 
-                    <label class="form-label " for="productPrice">Price</label>
-                    <input class="form-control form-input" type="text" name="productPrice" id="productPrice" required>
+          <label class="form-label" for="productPrice">Price</label>
+          <input
+            class="form-control form-input"
+            type="text"
+            name="productPrice"
+            id="productPrice"
+          />
+          <span id="productPriceError" class="error-message"></span>
 
+          <div>
+            <label class="form-label" for="productCollection">Collection</label>
+            <select
+              name="productCollection"
+              id="productCollection"
+              class="form-control form-input"
+            >
+              <option value="" selected disabled>Select a category</option>
+              <% productCollection.forEach((collection)=> { %>
+              <option value="<%= collection.collectionName %>">
+                <%= collection.collectionName %>
+              </option>
+              <% }) %>
+            </select>
+            <span id="productCollectionError" class="error-message"></span>
+          </div>
 
-                    <div>
-                    
-                    <label class="form-label " for="productCollection">Collection</label>
-                    <select name="productCollection" id="productCollection" class="form-control form-input" required>
-                        <option value="" selected disabled>Select a category</option>
-                        <% productCollection.forEach((collection)=> { %>
-                            <option value="<%= collection.collectionName %>">
-                                <%= collection.collectionName %>
-                            </option>
-                            <% }) %>
-                    </select>
-                    </div>
+          <label class="form-label" for="productQuantity">Stock</label>
+          <input
+            class="form-control form-input"
+            type="text"
+            name="productQuantity"
+            id="productQuantity"
+          />
+          <span id="productQuantityError" class="error-message"></span>
+        </div>
 
+        <div class="col-6">
+          <label for="productDescription" class="form-label">Description</label>
+          <textarea
+            class="form-control form-input"
+            name="productDescription"
+            id="productDescription"
+          ></textarea>
+          <span id="productDescriptionError" class="error-message"></span>
+        </div>
 
-                    <label class="form-label " for="productQuantity">Stock</label>
-                    <input class="form-control form-input" type="text" name="productQuantity" id="productQuantity" required>
-                    
-                </div>
+        <a class="btn submit-btn w-25 mt-3" onclick="addImage()">Add Images</a>
+        <span id="imageCountError" class="error-message"></span>
 
-                <div class="col-6">
-                    <label for="productDescription" class="form-label">Description</label>
-                    <textarea class="form-control form-input" name="productDescription" id="productDescription" required></textarea>
-                </div>
+        <div class="add-input" id="add-input"></div>
 
-                <a class="btn submit-btn w-25 mt-3" onclick="addImage()">Add Images</a>
+        <div class="image-upload-preview" id="image-upload-preview"></div>
+      </div>
 
-                <div class="add-input" id="add-input"></div>
+      <div id="croppedImagesContainer"></div>
+    </form>
+  </div>
 
-                <div class="image-upload-preview" id="image-upload-preview"></div>
-            </div>
-
-            <div id="croppedImagesContainer"></div>
-
-        </form>
-    </div>
-
-    <div class="text-center mt-3">
-        <a href="/admin/products" class="btn submit-btn-light">Cancel</a>
-        <button type="submit" class="btn submit-btn" name="" form="add-product-form" id="submit-form" >Add Product</button>
-    </div>
-
+  <div class="text-center mt-3">
+    <a href="/admin/products" class="btn submit-btn-light">Cancel</a>
+    <button
+      type="submit"
+      class="btn submit-btn"
+      name=""
+      form="add-product-form"
+      id="submit-form"
+    >
+      Add Product
+    </button>
+  </div>
 </div>
 
-
- 
-    <!-- Cropper Modal -->
-    <div class="modal fade" id="cropperModal" tabindex="-1" aria-labelledby="cropperModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="cropperModalLabel">Crop Image</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="imageToCrop">
-                        <img id="imageToCrop" src="" alt="Image to Crop">
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" onclick="cropImage()">Crop</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
+<!-- Cropper Modal -->
+<div
+  class="modal fade"
+  id="cropperModal"
+  tabindex="-1"
+  aria-labelledby="cropperModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="cropperModalLabel">Crop Image</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <div class="imageToCrop">
+          <img id="imageToCrop" src="" alt="Image to Crop" />
         </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="cropImage()">
+          Crop
+        </button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Close
+        </button>
+      </div>
     </div>
+  </div>
+</div>
 
+<script>
+  let cropper;
+  let currentInput;
+  let currentImageBox;
+  let imageCount = 0;
 
-    <script>
-        let cropper;
-        let currentInput;
-        let currentImageBox;
-    
-        function addImage() {
-            const inputDiv = document.getElementById('add-input');
-            const newInput = document.createElement('input');
-            newInput.type = 'file';
-            newInput.name = 'image';
-            newInput.style.display = 'none';
-    
-            newInput.addEventListener('change', (event) => {
-                if (event.target.files && event.target.files[0]) {
-                    const reader = new FileReader();
-                    reader.onload = function (e) {
-                        const previewDiv = document.getElementById('image-upload-preview');
-                        const imageBox = document.createElement('div');
-                        imageBox.className = 'product-image-box d-flex flex-column mt-3';
-                        imageBox.innerHTML = `<img src="${e.target.result}" alt="" class="preview-img">`;
-    
-                        let deleteImage = document.createElement('button');
-                        deleteImage.textContent = 'Delete';
-                        deleteImage.classList.add('btn', 'submit-btn', 'mt-2');
-                        deleteImage.addEventListener('click', () => {
-                            imageBox.remove();
-                            newInput.remove();
-                            const hiddenInput = document.querySelector(`input[data-image-id="${newInput.dataset.imageId}"]`);
-                            if (hiddenInput) hiddenInput.remove();
-                        });
-    
-                        imageBox.querySelector('.preview-img').addEventListener('click', () => {
-                            document.getElementById('imageToCrop').src = e.target.result;
-                            var modal = new bootstrap.Modal(document.getElementById('cropperModal'));
-                            modal.show();
-                            currentInput = newInput;
-                            currentImageBox = imageBox;
-                            if (cropper) {
-                                cropper.destroy();
-                            }
-                            cropper = new Cropper(document.getElementById('imageToCrop'), {
-                                aspectRatio: 1,
-                                viewMode: 1
-                            });
-                        });
-    
-                        imageBox.appendChild(deleteImage);
-                        previewDiv.appendChild(imageBox);
-                    };
-                    reader.readAsDataURL(event.target.files[0]);
-                }
+  function addImage() {
+    if (imageCount >= 3) {
+      document.getElementById("imageCountError").textContent =
+        "Maximum 3 images allowed";
+      return;
+    }
+
+    const inputDiv = document.getElementById("add-input");
+    const newInput = document.createElement("input");
+    newInput.type = "file";
+    newInput.name = "image";
+    newInput.style.display = "none";
+
+    newInput.addEventListener("change", (event) => {
+      if (event.target.files && event.target.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const previewDiv = document.getElementById("image-upload-preview");
+          const imageBox = document.createElement("div");
+          imageBox.className = "product-image-box d-flex flex-column mt-3";
+          imageBox.innerHTML = `<img src="${e.target.result}" alt="" class="preview-img">`;
+
+          let deleteImage = document.createElement("button");
+          deleteImage.textContent = "Delete";
+          deleteImage.classList.add("btn", "submit-btn", "mt-2");
+          deleteImage.addEventListener("click", () => {
+            imageBox.remove();
+            newInput.remove();
+            const hiddenInput = document.querySelector(
+              `input[data-image-id="${newInput.dataset.imageId}"]`
+            );
+            if (hiddenInput) hiddenInput.remove();
+            imageCount--;
+            updateImageCountError();
+          });
+
+          imageBox
+            .querySelector(".preview-img")
+            .addEventListener("click", () => {
+              document.getElementById("imageToCrop").src = e.target.result;
+              var modal = new bootstrap.Modal(
+                document.getElementById("cropperModal")
+              );
+              modal.show();
+              currentInput = newInput;
+              currentImageBox = imageBox;
+              if (cropper) {
+                cropper.destroy();
+              }
+              cropper = new Cropper(document.getElementById("imageToCrop"), {
+                aspectRatio: 1,
+                viewMode: 1,
+              });
             });
-    
-            newInput.dataset.imageId = Date.now(); // Assign a unique ID to each input for tracking
-            inputDiv.appendChild(newInput);
-            newInput.click();
-        }
-    
-        function cropImage() {
-            const canvas = cropper.getCroppedCanvas();
-            const croppedImageBase64 = canvas.toDataURL('image/png');
-    
-            // Update the preview with the cropped image
-            currentImageBox.querySelector('.preview-img').src = croppedImageBase64;
-    
-            // Store the base64 cropped image in a new hidden input field
-            const croppedImagesContainer = document.getElementById('croppedImagesContainer');
-            const newHiddenInput = document.createElement('input');
-            newHiddenInput.type = 'hidden';
-            newHiddenInput.name = 'croppedImages[]';  // Use an array name to handle multiple images
-            newHiddenInput.value = croppedImageBase64;
-            newHiddenInput.dataset.imageId = currentInput.dataset.imageId; // Use the same ID for tracking
-    
-            croppedImagesContainer.appendChild(newHiddenInput);
-    
-            // Remove the original input
-            currentInput.remove();
-    
-            // Hide the modal
-            var modal = bootstrap.Modal.getInstance(document.getElementById('cropperModal'));
-            modal.hide();
-        }
-    </script>
-    
-    
+
+          imageBox.appendChild(deleteImage);
+          previewDiv.appendChild(imageBox);
+          imageCount++;
+          updateImageCountError();
+        };
+        reader.readAsDataURL(event.target.files[0]);
+      }
+    });
+
+    newInput.dataset.imageId = Date.now();
+    inputDiv.appendChild(newInput);
+    newInput.click();
+  }
+
+  function cropImage() {
+    const canvas = cropper.getCroppedCanvas();
+    const croppedImageBase64 = canvas.toDataURL("image/png");
+
+    // Update the preview with the cropped image
+    currentImageBox.querySelector(".preview-img").src = croppedImageBase64;
+
+    // Remove existing cropped image input if it exists
+    const existingCroppedInput = document.querySelector(
+      `input[data-image-id="${currentInput.dataset.imageId}"]`
+    );
+    if (existingCroppedInput) {
+      existingCroppedInput.remove();
+    }
+
+    // Store the base64 cropped image in a new hidden input field
+    const croppedImagesContainer = document.getElementById(
+      "croppedImagesContainer"
+    );
+    const newHiddenInput = document.createElement("input");
+    newHiddenInput.type = "hidden";
+    newHiddenInput.name = "croppedImages[]";
+    newHiddenInput.value = croppedImageBase64;
+    newHiddenInput.dataset.imageId = currentInput.dataset.imageId;
+
+    croppedImagesContainer.appendChild(newHiddenInput);
+
+    // Hide the modal
+    var modal = bootstrap.Modal.getInstance(
+      document.getElementById("cropperModal")
+    );
+    modal.hide();
+  }
+
+  function updateImageCountError() {
+    const errorSpan = document.getElementById("imageCountError");
+    if (imageCount >= 3) {
+      errorSpan.textContent = "Maximum 3 images allowed";
+    } else if (imageCount < 3) {
+      errorSpan.textContent = `Please add ${3 - imageCount} more image(s)`;
+    } else {
+      errorSpan.textContent = "";
+    }
+  }
+
+  function validateForm() {
+    let isValid = true;
+
+    // Product Name validation
+    const productName = document.getElementById("productName");
+    if (productName.value.trim() === "") {
+      document.getElementById("productNameError").textContent =
+        "Product name is required";
+      isValid = false;
+    } else {
+      document.getElementById("productNameError").textContent = "";
+    }
+
+    // Price validation
+    const productPrice = document.getElementById("productPrice");
+    if (productPrice.value === "" || isNaN(productPrice.value)) {
+      document.getElementById("productPriceError").textContent =
+        "Please enter a valid price";
+      isValid = false;
+    } else if (
+      parseFloat(productPrice.value) < 0 ||
+      parseFloat(productPrice.value) > 100000
+    ) {
+      document.getElementById("productPriceError").textContent =
+        "Price must be between 0 and 100,000";
+      isValid = false;
+    } else {
+      document.getElementById("productPriceError").textContent = "";
+    }
+
+    // Collection validation
+    const productCollection = document.getElementById("productCollection");
+    if (productCollection.value === "") {
+      document.getElementById("productCollectionError").textContent =
+        "Please select a collection";
+      isValid = false;
+    } else {
+      document.getElementById("productCollectionError").textContent = "";
+    }
+
+    // Stock validation
+    const productQuantity = document.getElementById("productQuantity");
+    if (
+      productQuantity.value === "" ||
+      isNaN(productQuantity.value) ||
+      parseInt(productQuantity.value) < 0
+    ) {
+      document.getElementById("productQuantityError").textContent =
+        "Please enter a valid stock quantity";
+      isValid = false;
+    } else {
+      document.getElementById("productQuantityError").textContent = "";
+    }
+
+    // Description validation
+    const productDescription = document.getElementById("productDescription");
+    if (productDescription.value.trim() === "") {
+      document.getElementById("productDescriptionError").textContent =
+        "Product description is required";
+      isValid = false;
+    } else {
+      document.getElementById("productDescriptionError").textContent = "";
+    }
+
+    // Image count validation
+    if (imageCount !== 3) {
+      document.getElementById(
+        "imageCountError"
+      ).textContent = `Please add exactly 3 images. Current count: ${imageCount}`;
+      isValid = false;
+    } else {
+      document.getElementById("imageCountError").textContent = "";
+    }
+
+    return isValid;
+  }
+
+  // Add event listener to the form
+  document
+    .getElementById("add-product-form")
+    .addEventListener("submit", function (event) {
+      if (!validateForm()) {
+        event.preventDefault(); // Prevent form submission if validation fails
+      }
+    });
+</script>
 
 <%- include('adminFooter') %>

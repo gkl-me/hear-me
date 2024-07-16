@@ -1,131 +1,389 @@
 <%- include('adminNav') %>
 
-<style>
-
-</style>
+<style></style>
 
 <div class="container container-add-products">
-    <div class="add-products">
-        <form action="/admin/editproduct/<%= product.id %>" method="post" enctype="multipart/form-data" id="edit-product-form">
-            <div class="row d-flex justify-content-center align-content-center ">
-                <div class="col-6">
-                    <label class="form-label " for="productName">Product Name</label>
-                    <input class="form-control form-input " type="text" name="productName" id="productName" value="<%= product.productName %>" disabled  required>
+  <div class="add-products">
+    <form
+      action="/admin/editproduct/<%= product.id %>"
+      method="post"
+      enctype="multipart/form-data"
+      id="edit-product-form"
+    >
+      <div class="row d-flex justify-content-center align-content-center">
+        <div class="col-6">
+          <label class="form-label" for="productName">Product Name</label>
+          <input
+            class="form-control form-input"
+            type="text"
+            name="productName"
+            id="productName"
+            value="<%= product.productName %>"
+            disabled
+          />
+          <span id="productNameError" class="text-danger"></span>
 
+          <label class="form-label" for="productPrice">Price</label>
+          <input
+            class="form-control form-input"
+            type="text"
+            name="productPrice"
+            id="productPrice"
+            value="<%= product.productPrice %>"
+          />
+          <span id="productPriceError" class="text-danger"></span>
 
-                    <label class="form-label " for="productPrice">Price</label>
-                    <input class="form-control form-input" type="text" name="productPrice" id="productPrice" value="<%= product.productPrice %>" required>
+          <div>
+            <label class="form-label" for="productCollection">Collection</label>
+            <select
+              name="productCollection"
+              id="productCollection"
+              class="form-control form-input"
+              disabled
+            >
+              <option value="" selected disabled>
+                <%= product.productCollection %>
+              </option>
+            </select>
+          </div>
 
+          <label class="form-label" for="productQuantity">Stock</label>
+          <input
+            class="form-control form-input"
+            type="text"
+            name="productQuantity"
+            id="productQuantity"
+            value="<%= product.productQuantity %>"
+          />
+          <span id="productQuantityError" class="text-danger"></span>
+        </div>
 
-                    <div>
-                    
-                    <label class="form-label " for="productCollection">Collection</label>
-                    <select name="productCollection" id="productCollection" class="form-control form-input" disabled required>
-                        <option value="" selected disabled><%= product.productCollection %></option>
-                    </select>
-                    </div>
+        <div class="col-6">
+          <label for="productDescription" class="form-label">Description</label>
+          <textarea
+            class="form-control form-input"
+            name="productDescription"
+            id="productDescription"
+          >
+<%= product.productDescription %></textarea
+          >
+          <span id="productDescriptionError" class="text-danger"></span>
+        </div>
 
+        <div class="mb-5"></div>
 
-                    <label class="form-label " for="productQuantity">Stock</label>
-                    <input class="form-control form-input" type="text" name="productQuantity" id="productQuantity" value="<%= product.productQuantity %>" required>
-                    
-                </div>
+        <a class="btn submit-btn w-25" onclick="addImage()">Add Images</a>
 
-                <div class="col-6">
-                    <label for="productDescription" class="form-label">Description</label>
-                    <textarea class="form-control form-input" name="productDescription" id="productDescription" required><%= product.productDescription %></textarea>
-                </div>
+        <div class="add-input" id="add-input"></div>
 
-                <div class="mb-5"></div>
+        <div class="image-upload-preview" id="image-upload-preview">
+          <% product.productImage.forEach((img)=>{ %>
+          <div
+            class="product-image-box d-flex flex-column"
+            data-image-path="<%= img %>"
+          >
+            <img src="../../<%=img %>" alt="" class="preview-img" />
+            <a
+              class="btn submit-btn"
+              onclick="deleteImage(`<%=img.replace(/\\/g, '\\\\')%>`)"
+              >Delete</a
+            >
+          </div>
+          <% }) %>
+        </div>
+        <span id="imageCountError" class="text-danger"></span>
+      </div>
 
-                <a class="btn submit-btn w-25" onclick="addImage()">Add Images</a>
+      <input type="hidden" id="deletedImages" name="deletedImages" />
+    </form>
+  </div>
 
-                <div class="add-input" id="add-input"></div>
-
-                <div class="image-upload-preview" id="image-upload-preview">
-                    <% product.productImage.forEach((img)=>{ %>
-                        <div class="product-image-box d-flex flex-column" data-image-path="<%= img %>">
-                            <img src="../../<%=img %>" alt="" class="preview-img ">
-                            <a class="btn submit-btn" onclick="deleteImage(`<%=img.replace(/\\/g, '\\\\')%>`)">Delete</a>
-                        </div>
-                   <% }) %>
-                </div>
-            </div>
-
-            <input type="hidden" id="deletedImages" name="deletedImages">
-
-        </form>
-    </div>
-
-    <div class="text-center mt-3">
-        <a href="/admin/products" class="btn submit-btn-light">Cancel</a>
-        <button type="submit" class="btn submit-btn" name="" form="edit-product-form" id="submit-form" >Edit Product</button>
-    </div>
-
+  <div class="text-center mt-3">
+    <a href="/admin/products" class="btn submit-btn-light">Cancel</a>
+    <button
+      type="submit"
+      class="btn submit-btn"
+      name=""
+      form="edit-product-form"
+      id="submit-form"
+    >
+      Edit Product
+    </button>
+  </div>
 </div>
 
+<!-- Cropper Modal -->
+<div
+  class="modal fade"
+  id="cropperModal"
+  tabindex="-1"
+  aria-labelledby="cropperModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="cropperModalLabel">Crop Image</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <div class="imageToCrop">
+          <img id="imageToCrop" src="" alt="Image to Crop" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="cropImage()">
+          Crop
+        </button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/2.8.0/cropper.min.js"></script>
+
 <script>
+  let deletedImages = [];
+  let cropper = null;
+  let currentFileInput = null;
+  let currentImageElement = null;
 
+  function addImage() {
+    const inputDiv = document.getElementById("add-input");
+    const newInput = document.createElement("input");
+    newInput.type = "file";
+    newInput.name = "image";
+    newInput.accept = "image/*";
+    newInput.style.display = "none";
 
-    function addImage(){
-        const inputDiv = document.getElementById('add-input')
-        const newInput = document.createElement('input')
-        newInput.type = 'file'
-        newInput.name = 'image'
-        newInput.style.display = 'none';
-
-        
-
-        newInput.addEventListener('change', (event) => {
-       if (event.target.files && event.target.files[0]) {
+    newInput.addEventListener("change", (event) => {
+      if (event.target.files && event.target.files[0]) {
+        currentFileInput = newInput;
+        currentImageElement = null;
+        const file = event.target.files[0];
         const reader = new FileReader();
         reader.onload = function (e) {
-          const previewDiv = document.getElementById('image-upload-preview');
-          const imageBox = document.createElement('div');
-          imageBox.className = 'product-image-box d-flex flex-column';
-          imageBox.innerHTML = `<img src="${e.target.result}" alt="" class="preview-img">`;
-
-          let deleteImage = document.createElement('delete-image')
-            deleteImage.textContent = 'Delete'
-            deleteImage.classList.add('btn','submit-btn')
-            deleteImage.addEventListener('click',(e)=>{
-            imageBox.remove();
-            newInput.remove();
-    })
-
-          imageBox.appendChild(deleteImage)
-          previewDiv.appendChild(imageBox);
+          openCropperModal(e.target.result);
         };
-        reader.readAsDataURL(event.target.files[0]);
+        reader.readAsDataURL(file);
       }
     });
 
     inputDiv.appendChild(newInput);
     newInput.click();
+  }
 
+  function openCropperModal(imageSrc) {
+    const modal = new bootstrap.Modal(document.getElementById("cropperModal"));
+    const imageToCrop = document.getElementById("imageToCrop");
+    imageToCrop.src = imageSrc;
+    modal.show();
+
+    if (cropper) {
+      cropper.destroy();
     }
 
-    //empty array for images to be deleted
-    let deletedImages = []
+    cropper = new Cropper(imageToCrop, {
+      aspectRatio: 1,
+      viewMode: 1,
+      autoCropArea: 1,
+    });
+  }
 
-    //onclick function to add delete image path 
-    function deleteImage(imagePath) {
-    deletedImages.push(imagePath);
-    document.getElementById('deletedImages').value = JSON.stringify(deletedImages);
-    
-    //remove the image box preview for image path
-    const imageBox = document.querySelector(`div[data-image-path="${imagePath.replace(/\\/g, '\\\\')}"]`);
-    if (imageBox) {
-      imageBox.remove();
+  function cropImage() {
+    if (cropper) {
+      const croppedCanvas = cropper.getCroppedCanvas({
+        width: 300,
+        height: 300,
+      });
+
+      croppedCanvas.toBlob((blob) => {
+        const croppedImageUrl = URL.createObjectURL(blob);
+
+        if (currentImageElement) {
+          // Update existing image
+          const originalPath =
+            currentImageElement.closest(".product-image-box").dataset.imagePath;
+          deletedImages.push(originalPath);
+          document.getElementById("deletedImages").value =
+            JSON.stringify(deletedImages);
+
+          const file = new File([blob], `cropped_${Date.now()}.png`, {
+            type: "image/png",
+          });
+          addNewImageFile(file, croppedImageUrl);
+
+          currentImageElement.closest(".product-image-box").remove();
+        } else {
+          // Add new image
+          const file = new File([blob], `cropped_${Date.now()}.png`, {
+            type: "image/png",
+          });
+          addNewImageFile(file, croppedImageUrl);
+        }
+
+        bootstrap.Modal.getInstance(
+          document.getElementById("cropperModal")
+        ).hide();
+        cropper.destroy();
+        validateImageCount();
+      });
     }
   }
 
+  function addNewImageFile(file, imageUrl) {
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(file);
 
-  
+    const newInput = document.createElement("input");
+    newInput.type = "file";
+    newInput.name = "image";
+    newInput.style.display = "none";
+    newInput.files = dataTransfer.files;
 
+    document.getElementById("add-input").appendChild(newInput);
 
+    const previewDiv = document.getElementById("image-upload-preview");
+    const imageBox = document.createElement("div");
+    imageBox.className = "product-image-box d-flex flex-column";
+    imageBox.innerHTML = `<img src="${imageUrl}" alt="" class="preview-img">`;
+
+    const deleteButton = document.createElement("a");
+    deleteButton.textContent = "Delete";
+    deleteButton.classList.add("btn", "submit-btn");
+    deleteButton.addEventListener("click", () => {
+      imageBox.remove();
+      newInput.remove();
+      validateImageCount();
+    });
+
+    imageBox.appendChild(deleteButton);
+    previewDiv.appendChild(imageBox);
+  }
+
+  function deleteImage(imagePath) {
+    deletedImages.push(imagePath);
+    document.getElementById("deletedImages").value =
+      JSON.stringify(deletedImages);
+
+    const imageBox = document.querySelector(
+      `div[data-image-path="${imagePath.replace(/\\/g, "\\\\")}"]`
+    );
+    if (imageBox) {
+      imageBox.remove();
+    }
+    validateImageCount();
+  }
+
+  function cropExistingImage(imageElement) {
+    currentImageElement = imageElement;
+    currentFileInput = null;
+    openCropperModal(imageElement.src);
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const existingImages = document.querySelectorAll(".product-image-box");
+    existingImages.forEach((imageBox) => {
+      imageBox.style.cursor = "pointer";
+      imageBox.addEventListener("click", () => {
+        const img = imageBox.querySelector("img");
+        cropExistingImage(img);
+      });
+    });
+
+    validateImageCount();
+  });
+
+  // Rest of your JavaScript code (validateForm, validateImageCount, etc.) remains the same
+
+  function validateForm() {
+    let isValid = true;
+
+    // Product Name validation
+    const productName = document.getElementById("productName");
+    const productNameError = document.getElementById("productNameError");
+    if (productName.value.trim() === "") {
+      productNameError.textContent = "Product name cannot be empty";
+      isValid = false;
+    } else {
+      productNameError.textContent = "";
+    }
+
+    // Product Price validation
+    const productPrice = document.getElementById("productPrice");
+    const productPriceError = document.getElementById("productPriceError");
+    const price = parseFloat(productPrice.value);
+    if (isNaN(price) || price < 0 || price > 100000) {
+      productPriceError.textContent = "Price should be between 0 and 100000";
+      isValid = false;
+    } else {
+      productPriceError.textContent = "";
+    }
+
+    // Stock validation
+    const productQuantity = document.getElementById("productQuantity");
+    const productQuantityError = document.getElementById(
+      "productQuantityError"
+    );
+    if (
+      productQuantity.value.trim() === "" ||
+      parseInt(productQuantity.value) < 0
+    ) {
+      productQuantityError.textContent = "Stock cannot be empty or negative";
+      isValid = false;
+    } else {
+      productQuantityError.textContent = "";
+    }
+
+    // Description validation
+    const productDescription = document.getElementById("productDescription");
+    const productDescriptionError = document.getElementById(
+      "productDescriptionError"
+    );
+    if (productDescription.value.trim() === "") {
+      productDescriptionError.textContent = "Description cannot be empty";
+      isValid = false;
+    } else {
+      productDescriptionError.textContent = "";
+    }
+
+    // Image count validation
+    if (!validateImageCount()) {
+      isValid = false;
+    }
+
+    return isValid;
+  }
+
+  function validateImageCount() {
+    const imageCount = document.querySelectorAll(".product-image-box").length;
+    const imageCountError = document.getElementById("imageCountError");
+    if (imageCount !== 3) {
+      imageCountError.textContent = "Exactly 3 images are required";
+      return false;
+    } else {
+      imageCountError.textContent = "";
+      return true;
+    }
+  }
+
+  document
+    .getElementById("edit-product-form")
+    .addEventListener("submit", function (e) {
+      if (!validateForm()) {
+        e.preventDefault();
+      }
+    });
+
+  // Initial validation
+  validateImageCount();
 </script>
-
-
-
 <%- include('adminFooter') %>
