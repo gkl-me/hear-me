@@ -137,7 +137,7 @@ const editProduct = async (req,res) => {
         const id = req.params.id;
         const product = await productSchema.findById(id)
         if(product){
-            res.render('admin/editproduct',{title:'Edit Product',product})
+            res.render('admin/editProduct',{title:'Edit Product',product})
         }else{
             req.flash('error','Unable to edit product')
             res.redirect('/admin/products')
